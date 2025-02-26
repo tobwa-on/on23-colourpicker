@@ -1,13 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
+
 const firebaseConfig = {
-    apiKey: "AIzaSyByAY9UaX54HDpXY5_Kx7C1LuU2jKf4tbw",
-    authDomain: "on23-colourpicker-693f6.firebaseapp.com",
-    projectId: "on23-colourpicker-693f6",
-    storageBucket: "on23-colourpicker-693f6.firebasestorage.app",
-    messagingSenderId: "333660382782",
-    appId: "1:333660382782:web:e86370e235aae6903f936f"
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain:import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_APP_ID,
 };
 
 
