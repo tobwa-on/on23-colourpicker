@@ -21,8 +21,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { registerUser} from '../../firebase'; // Firebase auth importieren
+import {onMounted, ref} from 'vue';
+import {auth, registerUser} from '../../firebase'; // Firebase auth importieren
 import { useRouter } from 'vue-router';
 
 const email = ref('');
@@ -45,6 +45,16 @@ const register = async () => {
     error.value = err.message; // Fehlerbehandlung
   }
 };
+
+onMounted(() => {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      router.push('/home');
+    } else {
+      router.push('/register');
+    }
+  });
+});
 </script>
 
 <style scoped>

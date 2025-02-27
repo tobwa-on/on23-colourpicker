@@ -37,7 +37,6 @@ onMounted(() => {
   });
 });
 
-
 const login = async () => {
   try {
     await signInUser(email.value, password.value);
