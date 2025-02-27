@@ -20,7 +20,7 @@
 <style scoped>
 .navbar {
   border-top: 1px solid #ddd;
-  padding: 10px 0;
+  padding: 10px 0 30px 0;
 }
 
 .nav-item {
