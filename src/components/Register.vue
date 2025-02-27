@@ -1,28 +1,30 @@
 <template>
-  <div class="register">
-    <h2>Register</h2>
-    <form @submit.prevent="register">
-      <div>
-        <label for="email">Email</label>
-        <input type="email" v-model="email" required />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" v-model="password" required />
-      </div>
-      <div>
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" v-model="confirmPassword" required />
-      </div>
-      <button type="submit">Register</button>
-      <div v-if="error" class="error">{{ error }}</div>
-    </form>
+  <div class="auth-container">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center mb-4">Register</h2>
+      <form @submit.prevent="register">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" v-model="email" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" v-model="password" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label">Confirm Password</label>
+          <input type="password" v-model="confirmPassword" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-success w-100">Register</button>
+        <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
-import {auth, registerUser} from '../../firebase'; // Firebase auth importieren
+import { ref } from 'vue';
+import { registerUser } from '../../firebase';
 import { useRouter } from 'vue-router';
 
 const email = ref('');
@@ -38,27 +40,27 @@ const register = async () => {
   }
 
   try {
-    // Neues Benutzerkonto erstellen
     await registerUser(email.value, password.value);
-    await router.push('/home'); // Erfolgreiche Registrierung, Weiterleitung zum Dashboard
+    await router.push('/home');
   } catch (err) {
-    error.value = err.message; // Fehlerbehandlung
+    error.value = err.message;
   }
 };
-
-onMounted(() => {
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      router.push('/home');
-    } else {
-      router.push('/register');
-    }
-  });
-});
 </script>
 
 <style scoped>
-.error {
-  color: red;
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
 }
 </style>

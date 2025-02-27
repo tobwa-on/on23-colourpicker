@@ -1,27 +1,30 @@
 <template>
-  <div class="login">
-    <h2>Login</h2>
-    <form @submit.prevent="login">
-      <div>
-        <label for="email">Email</label>
-        <input type="email" v-model="email" required />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" v-model="password" required />
-      </div>
-      <button type="submit">Login</button>
-      <div v-if="error" class="error">{{ error }}</div>
-    </form>
-    <p>Don't have an account? <router-link to="/register">Register here</router-link></p> <!-- Link zur Register-Seite -->
+  <div class="auth-container">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center mb-4">Login</h2>
+      <form @submit.prevent="login">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" v-model="email" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" v-model="password" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
+      </form>
+      <p class="text-center mt-3">
+        Don't have an account? <router-link to="/register">Register here</router-link>
+      </p>
+    </div>
   </div>
 </template>
 
-
 <script setup>
-
-import {onMounted, ref} from 'vue';
-import {auth, signInUser} from '../../firebase';
+import { ref } from 'vue';
+import { auth } from '../../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
 
 const email = ref('');
@@ -29,26 +32,36 @@ const password = ref('');
 const error = ref('');
 const router = useRouter();
 
-onMounted(() => {
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      router.push('/home');
-    }
-  });
-});
-
 const login = async () => {
+  error.value = ""; // Fehler zurücksetzen
   try {
-    await signInUser(email.value, password.value);
-    await router.push('/home'); // Erfolgreiches Login, Weiterleitung zum Dashboard
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    if (userCredential.user) {
+      await router.push('/home'); // Weiterleitung zum Dashboard
+    }
   } catch (err) {
-    error.value = err.message; // Fehlerbehandlung
+    if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+      error.value = "Invalid email or password. Please try again.";
+    } else {
+      error.value = err.message;
+    }
   }
 };
 </script>
 
 <style scoped>
-.error {
-  color: red;
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
 }
 </style>
