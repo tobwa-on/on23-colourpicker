@@ -20,8 +20,8 @@
 
 <script setup>
 
-import { ref } from 'vue';
-import { signInUser } from '../../firebase';
+import {onMounted, ref} from 'vue';
+import {auth, signInUser} from '../../firebase';
 import { useRouter } from 'vue-router';
 
 const email = ref('');
@@ -29,10 +29,19 @@ const password = ref('');
 const error = ref('');
 const router = useRouter();
 
+onMounted(() => {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      router.push('/home');
+    }
+  });
+});
+
+
 const login = async () => {
   try {
     await signInUser(email.value, password.value);
-    await router.push('/dashboard'); // Erfolgreiches Login, Weiterleitung zum Dashboard
+    await router.push('/home'); // Erfolgreiches Login, Weiterleitung zum Dashboard
   } catch (err) {
     error.value = err.message; // Fehlerbehandlung
   }

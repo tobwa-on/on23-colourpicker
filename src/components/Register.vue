@@ -40,7 +40,7 @@ const register = async () => {
   try {
     // Neues Benutzerkonto erstellen
     await registerUser(email.value, password.value);
-    await router.push('/dashboard'); // Erfolgreiche Registrierung, Weiterleitung zum Dashboard
+    await router.push('/home'); // Erfolgreiche Registrierung, Weiterleitung zum Dashboard
   } catch (err) {
     error.value = err.message; // Fehlerbehandlung
   }

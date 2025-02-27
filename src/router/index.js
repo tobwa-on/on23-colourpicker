@@ -1,7 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
-import Dashboard from '../components/Dashboard.vue';
-import Register from '../components/Register.vue'; // Register-Komponente importieren
+import Register from '../components/Register.vue';
+import HomeView from "../views/HomeView.vue";
+import PaletteView from "../views/PaletteView.vue";
+import SettingsView from "../views/SettingsView.vue";
+import {auth} from "../../firebase.js";
 
 const routes = [
     {
@@ -15,14 +18,30 @@ const routes = [
         component: Register // Register-Route hinzufügen
     },
     {
-        path: '/dashboard',
-        name: 'Dashboard',
-        component: Dashboard
+        path: '/home',
+        name: 'Home',
+        component: HomeView,
+        // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/palettes',
+        name: 'Palette',
+        component: PaletteView,
+        // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/settings',
+        name: 'Settings',
+        component: SettingsView,
+        // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
     },
     {
         // Catch-All Route für alle unbekannten Routen
         path: '/:pathMatch(.*)*',
-        redirect: '/login'  // Umleiten zur Login-Seite bei nicht gefundenem Pfad
+        redirect: '/home'  // Umleiten zur Login-Seite bei nicht gefundenem Pfad
     }
 ];
 

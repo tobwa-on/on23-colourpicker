@@ -12,13 +12,8 @@ import { useRouter } from 'vue-router'; // Vue Router verwenden
 const router = useRouter(); // Router-Instanz
 
 onMounted(() => {
-  // Auth-Status überwachen und Navigation durchführen
   auth.onAuthStateChanged(user => {
-    if (user) {
-      // Wenn der Benutzer eingeloggt ist, zum Dashboard weiterleiten
-      router.push('/dashboard');
-    } else {
-      // Wenn der Benutzer nicht eingeloggt ist, zur Login-Seite weiterleiten
+    if (!user) {
       router.push('/login');
     }
   });
