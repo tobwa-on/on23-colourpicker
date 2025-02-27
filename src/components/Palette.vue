@@ -1,5 +1,5 @@
 <template>
-  <
+  Hier kommen die Paletten und so
 </template>
 
 <script setup>

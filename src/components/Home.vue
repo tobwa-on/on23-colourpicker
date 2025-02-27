@@ -1,5 +1,6 @@
 <template>
-  <Logout/>
+
+  Hier kommt die Home Seite hin
 
 
 </template>
