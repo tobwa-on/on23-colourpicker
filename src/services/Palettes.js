@@ -139,3 +139,25 @@ export const deleteColor = async (paletteId, colorToDelete) => {
       throw new Error('User is not authenticated');
     }
   };
+
+  export const addColor = async (paletteId, newColor) => {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+            // Farben zum Array hinzufügen
+            await updateDoc(paletteRef, {
+                colors: arrayUnion(newColor),
+            });
+
+            console.log('Color successfully added!');
+        } catch (error) {
+            console.error('Error adding color: ', error);
+            throw error;
+        }
+    } else {
+        console.error('User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
+};

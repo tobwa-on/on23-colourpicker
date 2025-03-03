@@ -19,6 +19,15 @@
                   <button @click="handleEditColor(idx)" class="btn btn-primary btn-sm mt-2">Edit</button>
                 </div>
               </div>
+              <div class="mt-3">
+              <input
+                v-model="newColor"
+                type="text"
+                class="form-control"
+                placeholder="Enter color hex or name"
+              />
+              <button class="btn btn-success mt-2" @click="handleAddColor">Add Color</button>
+            </div>
             </div>
             <div class="card-footer text-center">
               <button class="btn btn-danger" @click="handleDeletePalette">Delete Palette</button>
@@ -32,9 +41,10 @@
   <script setup>
   import { ref, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { fetchPaletteById, deletePalette, deleteColor, updateColor } from '../services/Palettes.js';
+  import { fetchPaletteById, deletePalette, deleteColor, updateColor, addColor } from '../services/Palettes.js';
   
   const palette = ref(null);
+  const newColor = ref('');
   const router = useRouter();
   const route = useRoute();
   
@@ -77,6 +87,20 @@
       }
     }
   };
+
+  const handleAddColor = async () => {
+  if (newColor.value) {
+    try {
+      await addColor(palette.value.id, newColor.value);
+      palette.value.colors.push(newColor.value);  // Update the UI after adding
+      newColor.value = '';  // Reset the input field
+    } catch (error) {
+      console.error('Error adding color:', error);
+    }
+  } else {
+    console.warn('Please enter a color');
+  }
+};
   
   onMounted(() => {
     loadPalette();
