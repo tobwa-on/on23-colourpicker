@@ -9,8 +9,8 @@
 
         <!-- Color Palettes -->
         <div class="row">
-          <div v-for="(palette, index) in palettes" :key="index" class="col-md-4 mb-4">
-            <div class="card shadow-sm">
+          <div v-for="(palette, index) in palettes" :key="palette.id || index" class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="card shadow-sm" @click="goToPaletteDetail(palette.id || index)">
               <div class="card-header text-center">
                 <h5>{{ palette.name }}</h5>
               </div>
@@ -23,7 +23,6 @@
                     class="color-box"
                   ></div>
                 </div>
-                <button class="btn btn-danger mt-2" @click="handleDeletePalette(palette.id)">Delete Palette</button>
               </div>
             </div>
           </div>
@@ -36,9 +35,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { fetchPalettes, createPalette, deletePalette as deletePaletteService } from '../services/Palettes.js';
+import { useRouter } from 'vue-router';
+import { fetchPalettes, createPalette } from '../services/Palettes.js';
 
 const palettes = ref([]);
+const router = useRouter();
 
 const loadPalettes = async () => {
   try {
@@ -59,14 +60,10 @@ const addNewPalette = async () => {
   }
 };
 
-const handleDeletePalette = async (paletteId) => {
-  try {
-    await deletePaletteService(paletteId);
-    loadPalettes();
-  } catch (error) {
-    console.error('Error deleting palette:', error);
-  }
+const goToPaletteDetail = (paletteId) => {
+  router.push({ name: 'Palette Details', params: { id: paletteId } });
 };
+
 
 onMounted(() => {
   loadPalettes();
