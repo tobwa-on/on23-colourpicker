@@ -1,5 +1,15 @@
-import { auth, db, observeAuthState } from '../../firebase'; 
-import { collection, getDocs, addDoc, doc, deleteDoc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import {auth, db, observeAuthState} from '../../firebase';
+import {
+    collection,
+    getDocs,
+    addDoc,
+    doc,
+    deleteDoc,
+    getDoc,
+    updateDoc,
+    arrayRemove,
+    arrayUnion
+} from 'firebase/firestore';
 
 export const fetchPalettes = () => {
     return new Promise((resolve, reject) => {
@@ -72,9 +82,9 @@ export const fetchPaletteById = async (id) => {
                 try {
                     const paletteRef = doc(db, 'users', user.uid, 'palettes', id);
                     const docSnap = await getDoc(paletteRef);
-                    
+
                     if (docSnap.exists()) {
-                        resolve({ id: docSnap.id, ...docSnap.data() });
+                        resolve({id: docSnap.id, ...docSnap.data()});
                     } else {
                         reject(new Error('Palette not found'));
                     }
@@ -90,57 +100,55 @@ export const fetchPaletteById = async (id) => {
     });
 };
 
-
 export const deleteColor = async (paletteId, colorToDelete) => {
     const user = auth.currentUser;
-  
+
     if (user) {
-      try {
-        const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
-        
-        await updateDoc(paletteRef, {
-          colors: arrayRemove(colorToDelete),
-        });
-  
-        console.log('Color successfully deleted!');
-      } catch (error) {
-        console.error('Error deleting color: ', error);
-        throw error;
-      }
+        try {
+            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+
+            await updateDoc(paletteRef, {
+                colors: arrayRemove(colorToDelete),
+            });
+
+            console.log('Color successfully deleted!');
+        } catch (error) {
+            console.error('Error deleting color: ', error);
+            throw error;
+        }
     } else {
-      console.error('User is not authenticated');
-      throw new Error('User is not authenticated');
+        console.error('User is not authenticated');
+        throw new Error('User is not authenticated');
     }
-  };
+};
 
-
-  export const updateColor = async (paletteId, oldColor, newColor) => {
+export const updateColor = async (paletteId, oldColor, newColor) => {
     const user = auth.currentUser;
-  
-    if (user) {
-      try {
-        const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
-        
-        await updateDoc(paletteRef, {
-          colors: arrayRemove(oldColor),
-        });
-  
-        await updateDoc(paletteRef, {
-          colors: arrayUnion(newColor),
-        });
-  
-        console.log('Color successfully updated!');
-      } catch (error) {
-        console.error('Error updating color: ', error);
-        throw error;
-      }
-    } else {
-      console.error('User is not authenticated');
-      throw new Error('User is not authenticated');
-    }
-  };
 
-  export const addColor = async (paletteId, newColor) => {
+    if (user) {
+        try {
+            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+
+            await updateDoc(paletteRef, {
+                colors: arrayRemove(oldColor),
+            });
+
+            await updateDoc(paletteRef, {
+                colors: arrayUnion(newColor),
+            });
+
+            console.log('Color successfully updated!');
+        } catch (error) {
+            console.error('Error updating color: ', error);
+            throw error;
+        }
+    } else {
+        console.error('User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
+};
+
+export const addColor = async (paletteId, newColor) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -164,11 +172,33 @@ export const deleteColor = async (paletteId, colorToDelete) => {
 
 export function generateRandomColor() {
     const letters = '0123456789ABCDEF';
-    let color = '#'; 
-    for (let i = 0; i < 6; i++) { 
-      color += letters[Math.floor(Math.random() * 16)];
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
-  
+}
 
+
+export const updatePaletteName = async (paletteId, newName) => {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+
+            // Palette mit dem neuen Namen aktualisieren
+            await updateDoc(paletteRef, {
+                name: newName,
+            });
+
+            console.log('Palette name successfully updated!');
+        } catch (error) {
+            console.error('Error updating palette name: ', error);
+            throw error;
+        }
+    } else {
+        console.error('User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
+};
