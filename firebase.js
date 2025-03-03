@@ -30,16 +30,6 @@ export const registerUser = async (email, password) => {
     }
 };
 
-export const signInUser = async (email, password) => {
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        return user;
-    } catch (error) {
-        console.error('Error signing in user:', error.message);
-    }
-};
-
 // Auth State Change Listener (für z.B. session management)
 export const observeAuthState = (callback) => {
     onAuthStateChanged(auth, callback);

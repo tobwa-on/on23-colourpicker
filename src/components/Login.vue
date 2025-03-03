@@ -33,20 +33,38 @@ const error = ref('');
 const router = useRouter();
 
 const login = async () => {
-  error.value = ""; // Fehler zurücksetzen
+  error.value = "";
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     if (userCredential.user) {
-      await router.push('/home'); // Weiterleitung zum Dashboard
+      await router.push('/home');
     }
   } catch (err) {
-    if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
-      error.value = "Invalid email or password. Please try again.";
-    } else {
-      error.value = err.message;
+    switch (err.code) {
+      case "auth/invalid-credential":
+      case "auth/user-not-found":
+      case "auth/wrong-password":
+        error.value = "Ungültige E-Mail oder Passwort. Bitte versuche es erneut.";
+        break;
+      case "auth/too-many-requests":
+        error.value = "Zu viele fehlgeschlagene Versuche. Bitte versuche es später erneut.";
+        break;
+      case "auth/user-disabled":
+        error.value = "Dein Konto wurde deaktiviert. Bitte kontaktiere den Support.";
+        break;
+      case "auth/invalid-email":
+        error.value = "Bitte gib eine gültige E-Mail-Adresse ein.";
+        break;
+      case "auth/missing-password":
+        error.value = "Bitte gib dein Passwort ein.";
+        break;
+      default:
+        error.value = "Ein unbekannter Fehler ist aufgetreten. Bitte versuche es später erneut.";
+        break;
     }
   }
 };
+
 </script>
 
 <style scoped>
