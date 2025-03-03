@@ -232,7 +232,7 @@ const closeTutorialPopup = () => {
 .info-icon {
   border: none; /* Kein Rahmen */
   font-size: 1.4rem; /* Größe des Fragezeichens */
-  padding: 10px; /* Padding für mehr Klickfläche */
+
   border-radius: 20%; /* Runde Ecken, damit es wie ein Kreis aussieht */
 }
 
