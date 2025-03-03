@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
 
 const cameraInput = ref(null);
 const galleryInput = ref(null);
@@ -178,7 +178,7 @@ const extractColor = (x, y) => {
 
   // Farbcode in Hex umwandeln
   selectedColor.value = rgbToHex(colorAtClick.r, colorAtClick.g, colorAtClick.b);
-  rgbColor.value = rgbToRgbString(selectedColor.value);
+  rgbColor.value = hexToRgbString(selectedColor.value);
 };
 
 // RGB in Hex umwandeln
@@ -186,7 +186,7 @@ const rgbToHex = (r, g, b) => {
   return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase()}`;
 };
 
-const rgbToRgbString = (hex) => {
+const hexToRgbString = (hex) => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
