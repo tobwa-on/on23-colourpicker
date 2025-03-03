@@ -5,6 +5,7 @@ import HomeView from "../views/HomeView.vue";
 import PaletteView from "../views/PaletteView.vue";
 import SettingsView from "../views/SettingsView.vue";
 import {auth} from "../../firebase.js";
+import PaletteDetail from '../components/PaletteDetail.vue';
 
 const routes = [
     {
@@ -28,6 +29,13 @@ const routes = [
         path: '/palettes',
         name: 'Palette',
         component: PaletteView,
+        // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/palette-details/:id',
+        name: 'Palette Details',
+        component: PaletteDetail,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }
     },
