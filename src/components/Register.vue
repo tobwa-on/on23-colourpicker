@@ -34,8 +34,15 @@ const error = ref('');
 const router = useRouter();
 
 const register = async () => {
+  error.value = "";
+
   if (password.value !== confirmPassword.value) {
-    error.value = "Passwords do not match!";
+    error.value = "Die Passwörter stimmen nicht überein!";
+    return;
+  }
+
+  if (!isValidPassword(password.value)) {
+    error.value = "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl, ein Sonderzeichen sowie Groß- und Kleinbuchstaben enthalten.";
     return;
   }
 
@@ -43,9 +50,27 @@ const register = async () => {
     await registerUser(email.value, password.value);
     await router.push('/home');
   } catch (err) {
-    error.value = err.message;
+    switch (err.code) {
+      case "auth/email-already-in-use":
+        error.value = "Diese E-Mail-Adresse wird bereits verwendet.";
+        break;
+      case "auth/invalid-email":
+        error.value = "Bitte gib eine gültige E-Mail-Adresse ein.";
+        break;
+      case "auth/weak-password":
+        error.value = "Das Passwort ist zu schwach. Bitte verwende ein sicheres Passwort mit mindestens 8 Zeichen, einer Zahl, einem Sonderzeichen sowie Groß- und Kleinbuchstaben.";
+        break;
+      default:
+        error.value = "Ein unbekannter Fehler ist aufgetreten. Bitte versuche es später erneut.";
+        break;
+    }
   }
 };
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  return regex.test(password);
+};
+
 </script>
 
 <style scoped>

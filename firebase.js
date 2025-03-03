@@ -28,12 +28,3 @@ export const registerUser = async (email, password) => {
     }
 };
 
-export const signInUser = async (email, password) => {
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-    } catch (error) {
-        console.error('Error registering user:', error.message);
-    }
-};
-
