@@ -2,16 +2,18 @@
   <div class="container mt-4">
     <div class="header-section">
       <h1 class="title">My Palettes</h1>
-      <button class="btn btn-primary" @click="addNewPalette">Add New Palette</button>
+      <button class="btn btn-primary mdi mdi-plus" @click="openModal"> New Palette</button>
     </div>
 
+    <!-- Palettes Display Section -->
     <div class="col-md-10 mt-4">
       <div class="row">
         <div v-for="(palette, index) in palettes" :key="palette.id || index" class="col-6 col-sm-4 col-md-3 mb-4">
           <div class="card shadow-sm" @click="goToPaletteDetail(palette.id || index)">
-            <div class="card-header text-center">
-              <h5>{{ palette.name }}</h5>
+            <div class="card-header text-center align-items-center">
+              <h5 class="m-0">{{ palette.name }}</h5>
             </div>
+
             <div class="card-body p-0">
               <div class="d-flex">
                 <div
@@ -26,6 +28,25 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal for Adding New Palette -->
+    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-content">
+        <h2>Create New Palette</h2>
+        <form @submit.prevent="handleSubmit">
+          <div class="mb-3">
+            <label for="paletteName" class="form-label">Palette Name</label>
+            <input v-model="newPaletteName" type="text" id="paletteName" class="form-control" required/>
+          </div>
+          <div class="mb-3">
+            <label for="colorsInput" class="form-label">Colors (comma separated)</label>
+            <input v-model="newPaletteColors" type="text" id="colorsInput" class="form-control" required/>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Palette</button>
+          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -36,6 +57,9 @@ import {fetchPalettes, createPalette} from '../services/Palettes.js';
 
 const palettes = ref([]);
 const router = useRouter();
+const isModalOpen = ref(false);
+const newPaletteName = ref('');
+const newPaletteColors = ref('');
 
 const loadPalettes = async () => {
   try {
@@ -45,14 +69,22 @@ const loadPalettes = async () => {
   }
 };
 
-const addNewPalette = async () => {
-  const paletteName = prompt('Enter the name of the new palette:');
-  const colorsInput = prompt('Enter the colors (comma separated):');
+const openModal = () => {
+  isModalOpen.value = true;
+};
 
-  if (paletteName && colorsInput) {
-    const colors = colorsInput.split(',').map(color => color.trim());
-    await createPalette(paletteName, colors);
+const closeModal = () => {
+  isModalOpen.value = false;
+  newPaletteName.value = '';
+  newPaletteColors.value = '';
+};
+
+const handleSubmit = async () => {
+  if (newPaletteName.value && newPaletteColors.value) {
+    const colors = newPaletteColors.value.split(',').map(color => color.trim());
+    await createPalette(newPaletteName.value, colors);
     await loadPalettes();
+    closeModal();
   }
 };
 
@@ -90,5 +122,36 @@ onMounted(() => {
   font-size: 1.4rem;
   font-weight: bold;
   color: dimgrey;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+}
+
+.modal-content .form-control {
+  margin-bottom: 15px;
+}
+
+.modal-content .btn {
+  margin-right: 10px;
 }
 </style>
