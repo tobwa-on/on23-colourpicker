@@ -4,6 +4,7 @@
       <div class="col-md-10">
         <div class="d-flex justify-content-between mb-4">
           <h3>Color Palettes</h3>
+          <button class="btn btn-primary" @click="addNewPalette">Add New Palette</button>
         </div>
 
         <!-- Color Palettes -->
@@ -16,12 +17,11 @@
               <div class="card-body p-0">
                 <div class="d-flex">
                   <div
-                      v-for="(color, idx) in palette.colors"
-                      :key="idx"
-                      :style="{ backgroundColor: color, width: '100%' }"
-                      class="color-box"
-                  >
-                  </div>
+                    v-for="(color, idx) in palette.colors"
+                    :key="idx"
+                    :style="{ backgroundColor: color, width: '100%' }"
+                    class="color-box"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -34,14 +34,36 @@
 </template>
 
 <script setup>
-const palettes = [
-  { name: 'Sunset Glow', colors: ['#FF5733', '#FF8D1A', '#FFC300', '#FFDA79'] },
-  { name: 'Ocean Breeze', colors: ['#0097A7', '#00B8D4', '#006064', '#80DEEA'] },
-];
+import { ref, onMounted } from 'vue';
+import { fetchPalettes, createPalette } from '../services/Palettes.js';
+
+const palettes = ref([]);
+
+const loadPalettes = async () => {
+  try {
+    palettes.value = await fetchPalettes();
+  } catch (error) {
+    console.error('Error loading palettes:', error);
+  }
+};
+
+const addNewPalette = async () => {
+  const paletteName = prompt('Enter the name of the new palette:');
+  const colorsInput = prompt('Enter the colors (comma separated):');
+
+  if (paletteName && colorsInput) {
+    const colors = colorsInput.split(',').map(color => color.trim());
+    await createPalette(paletteName, colors);
+    loadPalettes(); 
+  }
+};
+
+onMounted(() => {
+  loadPalettes();
+});
 </script>
 
 <style scoped>
-
 .card-header {
   background-color: #f1f1f1;
 }
@@ -55,5 +77,4 @@ const palettes = [
   height: 100px;
   border: 1px solid #fff;
 }
-
 </style>
