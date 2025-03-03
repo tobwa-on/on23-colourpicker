@@ -354,4 +354,8 @@ canvas {
   z-index: 101;
   margin-top: 10px;
 }
+
+.btn {
+  font-size: 0.8rem;
+}
 </style>
