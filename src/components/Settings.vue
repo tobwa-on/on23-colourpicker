@@ -1,96 +1,78 @@
 <template>
-  <div :class="['container', { 'dark-mode': isDarkMode }]">
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-8">
-        <div class="d-flex justify-content-between mb-4">
-          <h3 class="fw-bold">Settings</h3>
-          <div class="form-check form-switch">
+  <div class="container mt-4">
+
+    <div class="header-section">
+      <h1 class="title">Settings</h1>
+      <button class="info-icon btn btn-danger" @click="logout"> Logout</button>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mt-2 ">Account Settings</h5>
+      </div>
+      <div class="card-body">
+        <form @submit.prevent="saveSettings">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
             <input
-                class="form-check-input"
-                type="checkbox"
-                id="darkModeSwitch"
-                v-model="isDarkMode"
+                type="text"
+                class="form-control"
+                id="username"
+                v-model="username"
+                required
             />
-            <label class="form-check-label" for="darkModeSwitch">
-              Dark Mode
-            </label>
           </div>
-        </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+                type="email"
+                class="form-control"
+                id="email"
+                v-model="email"
+                required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
 
-        <div class="mb-4">
-          <Logout />
+    <!-- Notification Settings -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mt-2 ">Notification Settings</h5>
+      </div>
+      <div class="card-body">
+        <div class="form-check">
+          <input
+              class="form-check-input"
+              type="checkbox"
+              id="emailNotifications"
+              v-model="emailNotifications"
+          />
+          <label class="form-check-label" for="emailNotifications">
+            Receive Email Notifications
+          </label>
         </div>
-
-        <!-- Account Settings -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5 class="mt-2 ">Account Settings</h5>
-          </div>
-          <div class="card-body">
-            <form @submit.prevent="saveSettings">
-              <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="username"
-                    v-model="username"
-                    required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    v-model="email"
-                    required
-                />
-              </div>
-              <button type="submit" class="btn btn-primary">Save</button>
-            </form>
-          </div>
+        <div class="form-check mt-3">
+          <input
+              class="form-check-input"
+              type="checkbox"
+              id="smsNotifications"
+              v-model="smsNotifications"
+          />
+          <label class="form-check-label" for="smsNotifications">
+            Receive SMS Notifications
+          </label>
         </div>
-
-        <!-- Notification Settings -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5 class="mt-2 ">Notification Settings</h5>
-          </div>
-          <div class="card-body">
-            <div class="form-check">
-              <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="emailNotifications"
-                  v-model="emailNotifications"
-              />
-              <label class="form-check-label" for="emailNotifications">
-                Receive Email Notifications
-              </label>
-            </div>
-            <div class="form-check mt-3">
-              <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="smsNotifications"
-                  v-model="smsNotifications"
-              />
-              <label class="form-check-label" for="smsNotifications">
-                Receive SMS Notifications
-              </label>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import Logout from "./Logout.vue";
 
 // Dark mode state
@@ -118,28 +100,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Dark Mode styles */
-.dark-mode {
-  background-color: #121212;
-  color: white;
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.dark-mode .card {
-  background-color: #1e1e1e;
-  color: white;
+.title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: dimgrey;
 }
 
-.dark-mode .form-control {
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-}
-
-.dark-mode .form-check-input:checked {
-  background-color: #007bff;
-}
-
-.dark-mode .form-check-label {
-  color: white;
-}
 </style>

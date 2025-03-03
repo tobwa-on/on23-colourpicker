@@ -1,6 +1,5 @@
 <template>
   <div class="container mt-4">
-    <!-- Header Section: Logo on the left, title on the right -->
     <div class="header-section">
       <h1 class="title">Colour Palette</h1>
       <button class="info-icon btn-outline-secondary" @click="showTutorial"> ❓ </button>
@@ -19,6 +18,7 @@
         <button class="btn btn-danger" @click="closeTutorialPopup">Schließen</button>
       </div>
     </div>
+
     <div class="btn-group w-100 mt-4">
       <button class="btn btn-primary btn-lg" @click="triggerCamera">📷 Foto aufnehmen</button>
       <button class="btn btn-secondary btn-lg" @click="triggerGallery">🖼️ Galerie öffnen</button>
