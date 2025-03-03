@@ -23,6 +23,7 @@
                     class="color-box"
                   ></div>
                 </div>
+                <button class="btn btn-danger mt-2" @click="handleDeletePalette(palette.id)">Delete Palette</button>
               </div>
             </div>
           </div>
@@ -35,7 +36,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { fetchPalettes, createPalette } from '../services/Palettes.js';
+import { fetchPalettes, createPalette, deletePalette as deletePaletteService } from '../services/Palettes.js';
 
 const palettes = ref([]);
 
@@ -55,6 +56,15 @@ const addNewPalette = async () => {
     const colors = colorsInput.split(',').map(color => color.trim());
     await createPalette(paletteName, colors);
     loadPalettes(); 
+  }
+};
+
+const handleDeletePalette = async (paletteId) => {
+  try {
+    await deletePaletteService(paletteId);
+    loadPalettes();
+  } catch (error) {
+    console.error('Error deleting palette:', error);
   }
 };
 

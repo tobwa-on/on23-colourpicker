@@ -1,5 +1,5 @@
 import { auth, db, observeAuthState } from '../../firebase'; 
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore';
 
 export const fetchPalettes = () => {
     return new Promise((resolve, reject) => {
@@ -8,7 +8,10 @@ export const fetchPalettes = () => {
                 try {
                     const palettesRef = collection(db, 'users', user.uid, 'palettes');
                     const snapshot = await getDocs(palettesRef);
-                    const palettes = snapshot.docs.map(doc => doc.data());
+                    const palettes = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
                     resolve(palettes);
                 } catch (error) {
                     console.error('Error fetching palettes: ', error);
@@ -36,6 +39,24 @@ export const createPalette = async (paletteName, colors) => {
             console.log('Palette successfully created!');
         } catch (error) {
             console.error('Error creating palette: ', error);
+            throw error;
+        }
+    } else {
+        console.error('User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
+};
+
+export const deletePalette = async (paletteId) => {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+            await deleteDoc(paletteRef);
+            console.log('Palette successfully deleted!');
+        } catch (error) {
+            console.error('Error deleting palette: ', error);
             throw error;
         }
     } else {
