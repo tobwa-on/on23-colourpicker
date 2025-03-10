@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar fixed-bottom navbar-light bg-light">
+  <nav :class="['navbar fixed-bottom', theme === 'dark' ? 'bg-dark' : 'bg-light']">
     <div class="container-fluid d-flex justify-content-around">
 
       <router-link to="/palettes" class="nav-item nav-link">
@@ -16,6 +16,11 @@
     </div>
   </nav>
 </template>
+
+<script setup>
+import { inject } from 'vue';
+const theme = inject('theme');
+</script>
 
 <style scoped>
 .navbar {
@@ -44,4 +49,12 @@
   color: #007bff;
 }
 
+
+.bg-dark .nav-item {
+  color: #ccc; 
+}
+
+.bg-dark .nav-item.router-link-active {
+  color: #4dabf7;
+}
 </style>

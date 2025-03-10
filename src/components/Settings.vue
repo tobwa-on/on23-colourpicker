@@ -8,13 +8,28 @@
     <div class="card mt-4">
       Hallo hier kommen einstellungen
     </div>
+
+    <!-- Dark Mode Toggle Button -->
+    <div class="form-check form-switch mt-4">
+      <input 
+        class="form-check-input" 
+        type="checkbox" 
+        id="themeToggle" 
+        :checked="theme === 'dark'" 
+        @change="toggleTheme"
+      />
+      <label class="form-check-label" for="themeToggle">Dark Mode</label>
+    </div>
   </div>
 </template>
 
 <script setup>
-import {getAuth, signOut} from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
+import { inject } from 'vue';
 
 const auth = getAuth();
+const theme = inject('theme');
+const toggleTheme = inject('toggleTheme'); // Ensure toggleTheme is injected
 
 const logout = async () => {
   try {
@@ -24,7 +39,6 @@ const logout = async () => {
     console.error('Fehler beim Logout:', error);
   }
 };
-
 </script>
 
 <style scoped>
@@ -40,4 +54,7 @@ const logout = async () => {
   color: dimgrey;
 }
 
+.form-check-input {
+  cursor: pointer;
+}
 </style>
