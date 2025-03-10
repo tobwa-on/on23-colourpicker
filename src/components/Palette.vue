@@ -1,8 +1,8 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <h1 class="title">Collections</h1>
-      <button class="btn add-btn mdi mdi-plus" @click="openModal"></button>
+      <h1 class="title m-0">Collections</h1>
+      <button class="btn add-btn mdi mdi-plus btn-lg" @click="openModal"></button>
     </div>
 
     <!-- Paletten-Anzeige -->
@@ -117,7 +117,6 @@ onMounted(() => {
   right: 0;
   background-color: transparent;
   border: none;
-  color: #007aff;
   font-size: 5rem;
   cursor: pointer;
 }
