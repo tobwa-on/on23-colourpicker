@@ -10,8 +10,8 @@
       <h1 v-if="palette" class="title m-0">{{ palette.name }}</h1>
 
       <div class="button-container">
-        <button v-if="!isModalOpen" class="btn btn-lg mdi mdi-plus" @click="openModal"></button>
-        <button v-if="isModalOpen" class="btn mdi mdi-plus" @click="handleAddColor"></button>
+        <!-- Plus-Button, der immer sichtbar ist -->
+        <button class="btn btn-lg mdi mdi-plus" @click="openModal"></button>
 
         <!-- Editieren-Button als Dropdown rechts -->
         <div v-if="palette" class="dropdown">
@@ -26,16 +26,17 @@
           </button>
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <li>
-              <a class="mdi mdi-pencil dropdown-item" @click="handleEditName"> Umbennenen</a>
+              <a class="mdi mdi-pencil dropdown-item" @click="handleEditName"> Rename</a>
             </li>
             <li>
-              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette"> Löschen</a>
+              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette"> Delete</a>
             </li>
           </ul>
         </div>
       </div>
     </div>
 
+    <!-- Anzeige der Palette (Farben) -->
     <div v-if="palette">
       <div class="d-block">
         <div
@@ -44,22 +45,15 @@
             class="color-box mb-3"
         >
           <!-- Farbfeld als Container mit Overlay -->
-          <div
-              :style="{ backgroundColor: color, height: '100px', width: '100%' }"
-          >
+          <div :style="{ backgroundColor: color, height: '100px', width: '100%' }">
             <div class="overlay">
               <div class="text-container">
                 <div class="color-hex">{{ color }}</div>
               </div>
               <div class="btn-container">
-                <button
-                    @click="handleEditColor(idx)"
-                    class="btn mdi mdi-pencil"
-                ></button>
-                <button
-                    @click="handleDeleteColor(idx)"
-                    class="btn mdi mdi-trash-can"
-                ></button>
+                <!-- Öffnet das Edit-Color-Popup -->
+                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil"></button>
+                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can"></button>
               </div>
             </div>
           </div>
@@ -67,29 +61,43 @@
       </div>
     </div>
 
-    <div v-if="palette" class="row justify-content-center">
-      <div class="card shadow">
-        <div class="my-3">
-          <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
-            <div class="d-flex align-items-center">
-              <!-- Color Picker mit Hinweistext -->
-              <div class="me-2">
-                <label for="colorPicker" class="form-label">Pick a color</label>
-                <input
-                    v-model="newColor"
-                    type="color"
-                    id="colorPicker"
-                    class="form-control form-control-color color-input-field"
-                />
-              </div>
-            </div>
-          </div>
+    <!-- Overlay für den Color Picker zum Hinzufügen einer Farbe -->
+    <div v-if="isModalOpen" class="modal-overlay">
+      <div class="modal-content color-picker-modal">
+        <!-- Farb-Vorschau -->
+        <div class="color-info">
+          <div class="color-hex-code">{{ newColor }}</div>
+        </div>
+        <!-- Color Picker Input -->
+        <div class="color-input">
+          <input type="color" v-model="newColor" class="form-control" />
+        </div>
+        <div class="modal-buttons mt-3">
+          <button class="btn btn-secondary mdi mdi-close" @click="closeModal"> Cancel</button>
+          <button class="btn btn-primary mdi mdi-plus" @click="handleAddColorAndClose"> Add</button>
         </div>
       </div>
     </div>
 
-    <!-- Umbenennungs-Popup -->
-    <div v-if="isRenameModalOpen" class="modal-overlay" @click.self="closeRenameModal">
+    <!-- Overlay für das Bearbeiten einer Farbe -->
+    <div v-if="isEditColorModalOpen" class="modal-overlay">
+      <div class="modal-content color-picker-modal">
+        <h2>Edit Colour</h2>
+        <div class="color-info">
+          <div class="color-hex-code">{{ editColorValue }}</div>
+        </div>
+        <div class="color-input">
+          <input type="color" v-model="editColorValue" class="form-control" />
+        </div>
+        <div class="modal-buttons mt-3">
+          <button class="btn btn-secondary mdi mdi-close" @click="closeEditColorModal"> Cancel</button>
+          <button class="btn btn-primary mdi mdi-check" @click="handleSaveEditedColor"> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Umbenennungs‑Popup -->
+    <div v-if="isRenameModalOpen" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Rename Collection</h5>
@@ -104,8 +112,8 @@
           />
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeRenameModal"> Abbrechen</button>
-          <button type="button" class="btn btn-primary mdi mdi-check" @click="handleSaveName"> Speichern</button>
+          <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeRenameModal"> Cancel</button>
+          <button type="button" class="btn btn-primary mdi mdi-check" @click="handleSaveName"> Save</button>
         </div>
       </div>
     </div>
@@ -120,23 +128,46 @@ import {
   deleteColor,
   deletePalette,
   fetchPaletteById,
-  generateRandomColor,
   updateColor,
   updatePaletteName,
 } from '../services/Palettes.js';
 
 const palette = ref(null);
-const newColor = ref('');
+const newColor = ref('#000'); // Standardwert für neuen Farbwert
 const paletteName = ref('');
 const router = useRouter();
 const route = useRoute();
 const isModalOpen = ref(false);
-const isRenameModalOpen = ref(false); // Zustand für das Umbenennungs-Popup
-const colorInput = ref('');
-const isEditPalette = ref(false);
+const isRenameModalOpen = ref(false);
+// Variablen für das Edit-Color-Popup
+const isEditColorModalOpen = ref(false);
+const editColorValue = ref('');
+const editColorIndex = ref(null);
+const activeModel = ref('RGB'); // Wird aktuell nicht weiter verwendet
 
-const handleEditName = async () => {
-  isRenameModalOpen.value = true; // Popup öffnen
+const loadPalette = async () => {
+  try {
+    palette.value = await fetchPaletteById(route.params.id);
+    paletteName.value = palette.value.name;
+  } catch (error) {
+    console.error('Error loading palette details:', error);
+  }
+};
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const closeRenameModal = () => {
+  isRenameModalOpen.value = false;
+};
+
+const handleEditName = () => {
+  isRenameModalOpen.value = true;
 };
 
 const handleSaveName = async () => {
@@ -148,16 +179,7 @@ const handleSaveName = async () => {
       console.error('Error updating palette name:', error);
     }
   }
-  isRenameModalOpen.value = false; // Popup schließen
-};
-
-const loadPalette = async () => {
-  try {
-    palette.value = await fetchPaletteById(route.params.id);
-    paletteName.value = palette.value.name;
-  } catch (error) {
-    console.error('Error loading palette details:', error);
-  }
+  isRenameModalOpen.value = false;
 };
 
 const handleDeletePalette = async () => {
@@ -179,16 +201,29 @@ const handleDeleteColor = async (idx) => {
   }
 };
 
-const handleEditColor = async (idx) => {
-  const newColor = prompt('Enter a new color (e.g., #FF5733):', palette.value.colors[idx]);
-  if (newColor) {
+// Öffnet das Edit-Color-Popup statt eines Prompts
+const openEditColorModal = (idx) => {
+  editColorIndex.value = idx;
+  editColorValue.value = palette.value.colors[idx];
+  isEditColorModalOpen.value = true;
+};
+
+const closeEditColorModal = () => {
+  isEditColorModalOpen.value = false;
+  editColorIndex.value = null;
+  editColorValue.value = '';
+};
+
+const handleSaveEditedColor = async () => {
+  if (editColorIndex.value !== null) {
+    const oldColor = palette.value.colors[editColorIndex.value];
     try {
-      const oldColor = palette.value.colors[idx];
-      await updateColor(palette.value.id, oldColor, newColor);
-      palette.value.colors[idx] = newColor;
+      await updateColor(palette.value.id, oldColor, editColorValue.value);
+      palette.value.colors[editColorIndex.value] = editColorValue.value;
     } catch (error) {
       console.error('Error updating color:', error);
     }
+    closeEditColorModal();
   }
 };
 
@@ -204,25 +239,18 @@ const handleAddColor = async () => {
   }
 };
 
+const handleAddColorAndClose = async () => {
+  await handleAddColor();
+  closeModal();
+};
+
 onMounted(() => {
   loadPalette();
 });
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-  colorInput.value = '';
-};
-
-const closeRenameModal = () => {
-  isRenameModalOpen.value = false; // Schließt das Umbenennungs-Popup
-};
 </script>
 
 <style scoped>
+/* HEADER */
 .header-section {
   display: flex;
   justify-content: space-between;
@@ -231,7 +259,6 @@ const closeRenameModal = () => {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-
 .header-section .title {
   position: absolute;
   left: 50%;
@@ -239,17 +266,18 @@ const closeRenameModal = () => {
   margin: 0;
   padding: 0;
 }
-
-.header-section button {
-  margin: 0;
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+/* PALETTE ANZEIGE */
 .color-box {
   position: relative;
   border-radius: 10px;
   overflow: hidden;
 }
-
 .overlay {
   position: absolute;
   top: 50%;
@@ -262,61 +290,83 @@ const closeRenameModal = () => {
   padding: 5px 20px;
   color: #fff;
 }
-
-.color-hex {
-  font-size: 0.8rem;
+.text-container {
+  text-align: center;
 }
-
+.color-hex {
+  font-size: 0.9rem;
+}
 .btn-container button {
   margin-left: 5px;
   color: #fff;
 }
 
-.button-container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Abstand zwischen den Buttons */
-}
-
-/* Stil für das Umbenennungs-Popup */
+/* MODAL OVERLAY & COLOR PICKER MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
+.modal-content.color-picker-modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+.color-info {
+  margin-bottom: 15px;
+}
+.color-hex-code {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.color-input input[type="color"] {
+  width: 100%;
+  height: 50px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.modal-buttons .btn {
+  flex: 1;
+}
 
+/* UMBENENNUNGS-POPUP (unverändert) */
 .modal-content {
   background: white;
   padding: 20px;
   border-radius: 10px;
   width: 400px;
 }
-
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px; /* Abstand zwischen Header und Body */
+  margin-bottom: 20px;
 }
-
 .modal-body {
-  margin-bottom: 20px; /* Abstand zwischen Body und Footer */
+  margin-bottom: 20px;
 }
-
 .modal-footer {
   display: flex;
   justify-content: space-between;
-  gap: 10px; /* Abstand zwischen den Buttons */
+  gap: 10px;
 }
-
 .modal-footer .btn {
-  padding: 10px 20px; /* Größere Buttons */
+  padding: 10px 20px;
 }
 </style>

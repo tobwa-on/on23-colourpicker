@@ -16,7 +16,6 @@
         <div class="palette-header">
           <h5>{{ palette.name }}</h5>
         </div>
-
         <div class="palette-body">
           <div
               v-for="(color, idx) in palette.colors"
@@ -28,22 +27,25 @@
       </div>
     </div>
 
-    <!-- Modal zum Erstellen einer neuen Palette -->
+    <!-- Modal zum Erstellen einer neuen Palette (nur Name wird eingegeben) -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <h2>Neue Palette erstellen</h2>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="paletteName">Palettenname</label>
-            <input v-model="newPaletteName" type="text" id="paletteName" required />
-          </div>
-          <div class="form-group">
-            <label for="colorsInput">Farben (Komma-getrennt)</label>
-            <input v-model="newPaletteColors" type="text" id="colorsInput" required />
+            <input
+                v-model="newPaletteName"
+                type="text"
+                id="paletteName"
+                required
+            />
           </div>
           <div class="modal-buttons">
             <button type="submit" class="btn btn-primary">Speichern</button>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Abbrechen</button>
+            <button type="button" class="btn btn-secondary" @click="closeModal">
+              Abbrechen
+            </button>
           </div>
         </form>
       </div>
@@ -60,7 +62,6 @@ const palettes = ref([]);
 const router = useRouter();
 const isModalOpen = ref(false);
 const newPaletteName = ref('');
-const newPaletteColors = ref('');
 
 const loadPalettes = async () => {
   try {
@@ -77,13 +78,12 @@ const openModal = () => {
 const closeModal = () => {
   isModalOpen.value = false;
   newPaletteName.value = '';
-  newPaletteColors.value = '';
 };
 
 const handleSubmit = async () => {
-  if (newPaletteName.value && newPaletteColors.value) {
-    const colors = newPaletteColors.value.split(',').map(color => color.trim());
-    await createPalette(newPaletteName.value, colors);
+  if (newPaletteName.value) {
+    // Erstelle eine neue Palette nur mit dem Namen. Die Palette startet mit einer leeren Farbenliste.
+    await createPalette(newPaletteName.value, []);
     await loadPalettes();
     closeModal();
   }
@@ -101,10 +101,6 @@ onMounted(() => {
 <style scoped>
 /* Header mit Titel und Plus-Button */
 .header-section {
-  text-align: center;
-}
-
-.header-section {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +108,10 @@ onMounted(() => {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-
+.header-section .title {
+  margin: 0;
+  padding: 0;
+}
 .add-btn {
   position: absolute;
   right: 0;
@@ -122,31 +121,27 @@ onMounted(() => {
   font-size: 5rem;
   cursor: pointer;
 }
+
 .palettes-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
-
 .palette-card {
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
 }
-
 .palette-header {
   padding: 10px;
 }
-
 .palette-header h5 {
   margin: 0;
   font-size: 1.1rem;
 }
-
 .palette-body {
   display: flex;
 }
-
 .color-box {
   flex: 1;
   height: 80px;
@@ -164,7 +159,6 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 }
-
 .modal-content {
   background: #1e1e1e;
   padding: 20px;
