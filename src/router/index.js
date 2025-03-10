@@ -20,7 +20,7 @@ const routes = [
     },
     {
         path: '/home',
-        name: 'Home',
+        name: 'Home2',
         component: HomeView,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }

@@ -1,49 +1,49 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <h1 class="title">My Palettes</h1>
-      <button class="btn btn-primary mdi mdi-plus" @click="openModal"> New Palette</button>
+      <h1 class="title">Collections</h1>
+      <button class="btn add-btn mdi mdi-plus" @click="openModal"></button>
     </div>
 
-    <!-- Palettes Display Section -->
-    <div class="col-md-10 mt-4">
-      <div class="row">
-        <div v-for="(palette, index) in palettes" :key="palette.id || index" class="col-6 col-sm-4 col-md-3 mb-4">
-          <div class="card shadow-sm" @click="goToPaletteDetail(palette.id || index)">
-            <div class="card-header text-center align-items-center">
-              <h5 class="m-0">{{ palette.name }}</h5>
-            </div>
-
-            <div class="card-body p-0">
-              <div class="d-flex">
-                <div
-                    v-for="(color, idx) in palette.colors"
-                    :key="idx"
-                    :style="{ backgroundColor: color, width: '100%' }"
-                    class="color-box"
-                ></div>
-              </div>
-            </div>
-          </div>
+    <!-- Paletten-Anzeige -->
+    <div class="palettes-container">
+      <div
+          v-for="(palette, index) in palettes"
+          :key="palette.id || index"
+          class="palette-card"
+          @click="goToPaletteDetail(palette.id || index)"
+      >
+        <div class="palette-header">
+          <h5>{{ palette.name }}</h5>
+        </div>
+        <div class="palette-body">
+          <div
+              v-for="(color, idx) in palette.colors"
+              :key="idx"
+              class="color-box"
+              :style="{ backgroundColor: color }"
+          ></div>
         </div>
       </div>
     </div>
 
-    <!-- Modal for Adding New Palette -->
+    <!-- Modal zum Erstellen einer neuen Palette -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <h2>Create New Palette</h2>
+        <h2>Neue Palette erstellen</h2>
         <form @submit.prevent="handleSubmit">
-          <div class="mb-3">
-            <label for="paletteName" class="form-label">Palette Name</label>
-            <input v-model="newPaletteName" type="text" id="paletteName" class="form-control" required/>
+          <div class="form-group">
+            <label for="paletteName">Palettenname</label>
+            <input v-model="newPaletteName" type="text" id="paletteName" required />
           </div>
-          <div class="mb-3">
-            <label for="colorsInput" class="form-label">Colors (comma separated)</label>
-            <input v-model="newPaletteColors" type="text" id="colorsInput" class="form-control" required/>
+          <div class="form-group">
+            <label for="colorsInput">Farben (Komma-getrennt)</label>
+            <input v-model="newPaletteColors" type="text" id="colorsInput" required />
           </div>
-          <button type="submit" class="btn btn-primary">Save Palette</button>
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
+          <div class="modal-buttons">
+            <button type="submit" class="btn btn-primary">Speichern</button>
+            <button type="button" class="btn btn-secondary" @click="closeModal">Abbrechen</button>
+          </div>
         </form>
       </div>
     </div>
@@ -51,9 +51,9 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
-import {useRouter} from 'vue-router';
-import {fetchPalettes, createPalette} from '../services/Palettes.js';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { fetchPalettes, createPalette } from '../services/Palettes.js';
 
 const palettes = ref([]);
 const router = useRouter();
@@ -89,7 +89,7 @@ const handleSubmit = async () => {
 };
 
 const goToPaletteDetail = (paletteId) => {
-  router.push({name: 'Palette Details', params: {id: paletteId}});
+  router.push({ name: 'Palette Details', params: { id: paletteId } });
 };
 
 onMounted(() => {
@@ -98,60 +98,117 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.card-header {
-  background-color: #f1f1f1;
-}
-
-.card-header h5 {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.color-box {
-  height: 100px;
-  border: 1px solid #fff;
+/* Header mit Titel und Plus-Button */
+.header-section {
+  text-align: center;
 }
 
 .header-section {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
-.title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: dimgrey;
+.add-btn {
+  position: absolute;
+  right: 0;
+  background-color: transparent;
+  border: none;
+  color: #007aff;
+  font-size: 5rem;
+  cursor: pointer;
+}
+/* Paletten-Anzeige */
+.palettes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
+/* Palette Card */
+.palette-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.palette-header {
+  padding: 10px;
+}
+
+.palette-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.palette-body {
+  display: flex;
+}
+.color-box {
+  flex: 1;
+  height: 80px;
+}
+
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .modal-content {
-  background: white;
+  background: #1e1e1e;
   padding: 20px;
   border-radius: 8px;
-  width: 400px;
+  width: 90%;
+  max-width: 400px;
+  color: #ffffff;
 }
-
 .modal-content h2 {
   margin-bottom: 20px;
 }
-
-.modal-content .form-control {
+.form-group {
   margin-bottom: 15px;
 }
-
-.modal-content .btn {
-  margin-right: 10px;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+.form-group input {
+  background-color: #2a2a2a;
+  border: none;
+  padding: 8px;
+  width: 100%;
+  color: #ffffff;
+  border-radius: 4px;
+}
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btn {
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background-color: #007aff;
+  color: #ffffff;
+}
+.btn-secondary {
+  background-color: #3a3a3a;
+  color: #ffffff;
 }
 </style>
