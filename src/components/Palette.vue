@@ -16,6 +16,7 @@
         <div class="palette-header">
           <h5>{{ palette.name }}</h5>
         </div>
+
         <div class="palette-body">
           <div
               v-for="(color, idx) in palette.colors"
@@ -121,18 +122,15 @@ onMounted(() => {
   font-size: 5rem;
   cursor: pointer;
 }
-/* Paletten-Anzeige */
 .palettes-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* Palette Card */
 .palette-card {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
 
@@ -148,6 +146,7 @@ onMounted(() => {
 .palette-body {
   display: flex;
 }
+
 .color-box {
   flex: 1;
   height: 80px;
@@ -165,6 +164,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
   background: #1e1e1e;
   padding: 20px;
