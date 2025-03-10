@@ -9,7 +9,7 @@
         <span class="btn-icon">📷</span>
         <span class="btn-text">Click here to open the camera</span>
       </button>
-      <button class="btn btn-secondary" @click="triggerGallery">
+      <button class="btn btn-secondary mt-4" @click="triggerGallery">
         <span class="btn-icon">🖼️</span>
         <span class="btn-text">Click here to choose a picture</span>
       </button>
@@ -91,7 +91,7 @@ const handleFileChange = (event) => {
   flex-direction: column;
   justify-content: space-evenly; /* Verteilt die Buttons gleichmäßig über die gesamte Höhe */
   align-items: center;
-  height: 80vh;               /* Nimmt die gesamte Bildschirmhöhe ein */
+  height: 70vh;               /* Nimmt die gesamte Bildschirmhöhe ein */
   padding: 20px;
   box-sizing: border-box;      /* Stellt sicher, dass Padding nicht die Höhe beeinflusst */
 }
