@@ -13,15 +13,15 @@
       <video ref="video" autoplay playsinline></video>
       <div class="target-dot"></div>
       <canvas ref="canvas"></canvas>
-    </div>
-
-    <!-- Farbcode anzeigen -->
-    <div class="color-info mb-3">
-      <div :class="['color-display-box', theme]">
-        <div class="color-box" :style="{ backgroundColor: color }"></div>
-        <div class="color-text">
-          <span>{{hexColor}}</span><br/>
-          <span>{{color}}</span>
+      <!-- Farbcode anzeigen -->
+      <div class="color-info" :class="theme">
+        <div :class="['color-display-box', theme]">
+          <div class="mx-auto d-flex align-items-center gap-2">
+          <div class="color-box" :style="{ backgroundColor: color }"></div>
+          <div class="color-text ">
+            <span>{{hexColor}}</span><br/>
+            <span>{{color}}</span>
+          </div></div>
         </div>
       </div>
     </div>
@@ -134,8 +134,12 @@ canvas {
 }
 
 .color-info {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: left;
-  margin-top: 20px;
+  width: calc(100% - 20px);
 }
 
 .color-display-box {
@@ -145,8 +149,7 @@ canvas {
   padding: 10px;
   border-radius: 12px;
   border: 1px solid #ddd;
-  max-width: 300px;
-  margin: auto;
+  width: 100%;
 }
 .color-display-box.light {
   background-color: #f8f9fa;
