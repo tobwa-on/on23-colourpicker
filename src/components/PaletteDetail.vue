@@ -88,7 +88,7 @@
           <div class="color-hex-code">{{ newColor }}</div>
         </div>
         <!-- Color Picker Input -->
-        <div class="color-input">
+        <div class="color-input  mt-3">
           <input type="color" v-model="newColor" class="form-control" />
         </div>
         <div class="modal-buttons mt-3">
@@ -101,11 +101,10 @@
     <!-- Overlay für das Bearbeiten einer Farbe -->
     <div v-if="isEditColorModalOpen" :class="['modal-overlay', theme]">
       <div :class="['modal-content color-picker-modal', theme]">
-        <h2>Edit Colour</h2>
         <div class="color-info">
           <div class="color-hex-code">{{ editColorValue }}</div>
         </div>
-        <div class="color-input">
+        <div class="color-input mt-3">
           <input type="color" v-model="editColorValue" class="form-control" />
         </div>
         <div class="modal-buttons mt-3">
@@ -161,7 +160,6 @@ const router = useRouter();
 const route = useRoute();
 const isModalOpen = ref(false);
 const isRenameModalOpen = ref(false);
-// Variablen für das Edit-Color-Popup
 const isEditColorModalOpen = ref(false);
 const editColorValue = ref('');
 const editColorIndex = ref(null);
@@ -370,6 +368,23 @@ onMounted(() => {
 .modal-content.color-picker-modal.dark {
   background: #1e1e1e;
   color: #ffffff;
+}
+/* Höherer Farbauswahl-Picker */
+.modal-content.color-picker-modal .color-input input[type="color"] {
+  width: 100%;
+  height: 80px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Die Buttons im Modal sollen die ganze Breite einnehmen, mit Abstand */
+.modal-content.color-picker-modal .modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+.modal-content.color-picker-modal .modal-buttons button {
+  flex: 1;
 }
 
 /* UMBENENNUNGS-POPUP */
