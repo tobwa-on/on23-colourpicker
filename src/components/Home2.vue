@@ -117,7 +117,7 @@ canvas {
 }
 
 .color-info {
-  text-align: center;
+  text-align: left;
   margin-top: 20px;
 }
 
