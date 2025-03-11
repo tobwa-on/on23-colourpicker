@@ -13,7 +13,9 @@
         <!-- Plus-Button, der immer sichtbar ist -->
         <button class="btn btn-lg mdi mdi-plus" @click="openModal"></button>
 
-         <!-- Button zum Hinzufügen einer random Farbe -->
+        <button class="btn btn-lg mdi mdi-star" @click="addIntelligentColorHandler"></button>
+
+        <!-- Button zum Hinzufügen einer random Farbe -->
         <button class="btn btn-lg mdi mdi-dice-multiple" @click="handleAddRandomColor"></button>
 
         <!-- Editieren-Button als Dropdown rechts -->
@@ -133,6 +135,7 @@ import {
   fetchPaletteById,
   updateColor,
   updatePaletteName,
+  getIntelligentColor,
   generateRandomColor
 } from '../services/Palettes.js';
 
@@ -157,6 +160,7 @@ const loadPalette = async () => {
     console.error('Error loading palette details:', error);
   }
 };
+
 
 const openModal = () => {
   isModalOpen.value = true;
@@ -254,6 +258,16 @@ const handleAddRandomColor = async () => {
    
   } catch (error) {
     console.error('Error adding random color:', error);
+  }
+};
+
+const addIntelligentColorHandler = async () => {
+  try {
+    const intelligentColor = await getIntelligentColor(palette.value.colors);
+    await addColor(palette.value.id, intelligentColor);
+    palette.value.colors.push(intelligentColor);
+  } catch (error) {
+    console.error('Error adding intelligent color:', error);
   }
 };
 
