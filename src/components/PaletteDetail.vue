@@ -13,6 +13,11 @@
         <!-- Plus-Button, der immer sichtbar ist -->
         <button class="btn btn-lg mdi mdi-plus" @click="openModal"></button>
 
+        <!-- Button zum Hinzufügen einer intelligenten Farbe -->
+        <button class="btn btn-lg mdi mdi-star" @click="addIntelligentColorHandler"></button>
+         <!-- Button zum Hinzufügen einer random Farbe -->
+        <button class="btn btn-lg mdi mdi-dice-multiple" @click="handleAddRandomColor"></button>
+
         <!-- Editieren-Button als Dropdown rechts -->
         <div v-if="palette" class="dropdown">
           <button
@@ -130,6 +135,8 @@ import {
   fetchPaletteById,
   updateColor,
   updatePaletteName,
+  getIntelligentColor,
+  generateRandomColor
 } from '../services/Palettes.js';
 
 const palette = ref(null);
@@ -228,9 +235,6 @@ const handleSaveEditedColor = async () => {
 };
 
 const handleAddColor = async () => {
-  if (!newColor.value) {
-    newColor.value = '#000000';
-  }
   try {
     await addColor(palette.value.id, newColor.value);
     palette.value.colors.push(newColor.value);
@@ -242,6 +246,29 @@ const handleAddColor = async () => {
 const handleAddColorAndClose = async () => {
   await handleAddColor();
   closeModal();
+};
+
+// Funktion zum Hinzufügen einer zufälligen Farbe
+const handleAddRandomColor = async () => {
+  try {
+    const randomColor = generateRandomColor();
+    palette.value.colors.push(randomColor);
+    await addColor(palette.value.id, randomColor);
+   
+  } catch (error) {
+    console.error('Error adding random color:', error);
+  }
+};
+
+// Funktion zum Hinzufügen einer intelligenten Farbe
+const addIntelligentColorHandler = async () => {
+  try {
+    const intelligentColor = await getIntelligentColor(palette.value.colors);
+    await addColor(palette.value.id, intelligentColor);
+    palette.value.colors.push(intelligentColor);
+  } catch (error) {
+    console.error('Error adding intelligent color:', error);
+  }
 };
 
 onMounted(() => {
