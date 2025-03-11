@@ -148,6 +148,21 @@ export const updateColor = async (paletteId, oldColor, newColor) => {
     }
 };
 
+export const getIntelligentColor = async (colors) => {
+    try {
+        // Pick a random color from the current palette
+        const randomColor = colors[Math.floor(Math.random() * colors.length)].replace('#', '');
+
+        // Fetch a complementary color from the Color API
+        const response = await fetch(`https://www.thecolorapi.com/scheme?hex=${randomColor}&mode=complement&count=1`);
+        const data = await response.json();
+        return data.colors[0].hex.value;
+    } catch (error) {
+        console.error('Error generating intelligent color:', error);
+        throw error;
+    }
+};
+
 export const addColor = async (paletteId, newColor) => {
     const user = auth.currentUser;
 
