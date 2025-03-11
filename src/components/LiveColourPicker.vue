@@ -17,12 +17,35 @@
       <div class="color-info" :class="theme">
         <div :class="['color-display-box', theme]">
           <div class="mx-auto d-flex align-items-center gap-2">
-          <div class="color-box" :style="{ backgroundColor: color }"></div>
-          <div class="color-text ">
-            <span>{{hexColor}}</span><br/>
-            <span>{{color}}</span>
-          </div></div>
+            <div class="color-box" :style="{ backgroundColor: color }"></div>
+            <div class="color-text">
+              <span>{{hexColor}}</span><br/>
+              <span>{{color}}</span>
+            </div>
+          </div>
         </div>
+      </div>
+      <!-- Add Colour Button -->
+      <div class="add-colour-button-container">
+        <button class="btn btn-primary add-colour-button" @click="saveCurrentColor">Add Colour</button>
+      </div>
+    </div>
+
+    <!-- Modal for displaying palette names -->
+    <div v-if="isPaletteModalOpen" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Select a Palette</h2>
+        <!-- Color preview and hex code -->
+        <div class="color-preview">
+          <div class="color-box" :style="{ backgroundColor: savedColor }"></div>
+          <div class="color-text">{{ savedHexColor }}</div>
+        </div>
+        <div class="palette-list">
+          <button v-for="palette in palettes" :key="palette.id" class="btn btn-palette btn-secondary my-1" @click="addColour(palette.id)">
+            {{ palette.name }}
+          </button>
+        </div>
+        <button class="btn btn-primary" @click="closePaletteModal">Cancel</button>
       </div>
     </div>
   </div>
@@ -30,13 +53,18 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, inject } from 'vue';
+import { fetchPalettes, addColor } from '../services/Palettes.js';
 
 const video = ref(null);
 const canvas = ref(null);
 
 const color = ref('rgb(0,0,0)');
 const hexColor = ref('#000000');
+const savedColor = ref('rgb(0,0,0)');
+const savedHexColor = ref('#000000');
 const theme = inject('theme');
+const isPaletteModalOpen = ref(false);
+const palettes = ref([]);
 
 // Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
@@ -84,6 +112,7 @@ const extractColor = () => {
 onMounted(() => {
   startCamera();
   setInterval(extractColor, 100);
+  loadPalettes();
 });
 
 // Bei Verlassen der Seite Stream stoppen
@@ -92,6 +121,38 @@ onBeforeUnmount(() => {
   const tracks = stream?.getTracks();
   tracks?.forEach(track => track.stop());
 });
+
+// Load palettes
+const loadPalettes = async () => {
+  try {
+    palettes.value = await fetchPalettes();
+  } catch (error) {
+    console.error('Error loading palettes:', error);
+  }
+};
+
+const saveCurrentColor = () => {
+  savedColor.value = color.value;
+  savedHexColor.value = hexColor.value;
+  openPaletteModal();
+};
+
+const openPaletteModal = () => {
+  isPaletteModalOpen.value = true;
+};
+
+const closePaletteModal = () => {
+  isPaletteModalOpen.value = false;
+};
+
+const addColour = async (paletteId) => {
+  try {
+    await addColor(paletteId, savedHexColor.value);
+    closePaletteModal();
+  } catch (error) {
+    console.error('Error adding color to palette:', error);
+  }
+};
 </script>
 
 <style scoped>
@@ -139,7 +200,7 @@ canvas {
   left: 50%;
   transform: translateX(-50%);
   text-align: left;
-  width: calc(100% - 20px);
+  width: calc(100% - 20px); 
 }
 
 .color-display-box {
@@ -183,5 +244,100 @@ canvas {
   opacity: 0.6;
   transform: translate(-50%, -50%);
   pointer-events: none;
+}
+
+.add-colour-button-container {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 20px); 
+}
+
+.add-colour-button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+}
+
+.color-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.color-preview .color-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #000;
+}
+
+.palette-list {
+  max-height: 200px; /* Set a max height for the list */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-bottom: 20px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.palette-list::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.btn-palette {
+  border-radius: 5px;
+  width: 100%;	
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: #f0f0f0; /* Grey background */
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+.btn-palette:hover {
+  background-color: #e0e0e0;
+}
+
+.modal-content .btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  color: #ffffff;
+}
+
+.modal-content .btn-secondary {
+  background-color: #6c757d;
+  color: #ffffff;
 }
 </style>
