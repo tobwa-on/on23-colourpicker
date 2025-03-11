@@ -4,10 +4,10 @@
       <h1 class="title">Colour Picker</h1>
     </div>
 
-    <!-- Video und Canvas für die Farbauswahl -->
+    <!-- Video Livestream in einer Box -->
     <div class="video-container">
-      <video ref="video" width="100%" height="auto" autoplay></video>
-      <canvas ref="canvas" style="display: none;"></canvas>
+      <video ref="video" autoplay playsinline></video>
+      <canvas ref="canvas"></canvas>
     </div>
 
     <!-- Farbcode anzeigen -->
@@ -30,9 +30,13 @@ const textColor = ref('white');  // Dynamische Textfarbe für den Farbcode
 
 // Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
-  const constraints = { video: { facingMode: "environment" } };
-  const stream = await navigator.mediaDevices.getUserMedia(constraints);
-  video.value.srcObject = stream;
+  try {
+    const constraints = { video: { facingMode: "environment" } };
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.value.srcObject = stream;
+  } catch (error) {
+    console.error("Fehler beim Starten der Kamera:", error);
+  }
 };
 
 // Live-Farbe extrahieren
@@ -69,7 +73,6 @@ onBeforeUnmount(() => {
   const tracks = stream?.getTracks();
   tracks?.forEach(track => track.stop());
 });
-
 </script>
 
 <style scoped>
@@ -79,12 +82,19 @@ onBeforeUnmount(() => {
 
 .video-container {
   position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  border: 2px solid #007aff;
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 800px;
+  margin: auto;
 }
 
 video {
-  max-width: 100%;
+  width: 100%;
   height: auto;
-  object-fit: contain;
   border-radius: 10px;
 }
 
