@@ -148,34 +148,6 @@ export const updateColor = async (paletteId, oldColor, newColor) => {
     }
 };
 
-export const getIntelligentColor = async (colors) => {
-    try {
-        // Get the last 5 colors of the palette and convert them to RGB format
-        const lastColors = colors.slice(-5).map(color => {
-            const hex = color.replace('#', '');
-            return [
-                parseInt(hex.substring(0, 2), 16),
-                parseInt(hex.substring(2, 4), 16),
-                parseInt(hex.substring(4, 6), 16)
-            ];
-        });
-
-        // Fetch a color from the Colormind API using the fetch API
-        const response = await fetch('http://colormind.io/api/', {
-            method: 'POST',
-            body: JSON.stringify({
-                model: 'default',
-                input: lastColors.concat(new Array(5 - lastColors.length).fill([0, 0, 0]))
-            })
-        });
-        const data = await response.json();
-        return `#${data.result[4].map(value => value.toString(16).padStart(2, '0')).join('')}`;
-    } catch (error) {
-        console.error('Error generating intelligent color:', error);
-        throw error;
-    }
-};
-
 export const addColor = async (paletteId, newColor) => {
     const user = auth.currentUser;
 
