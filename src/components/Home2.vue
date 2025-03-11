@@ -13,9 +13,13 @@
 
     <!-- Farbcode anzeigen -->
     <div class="color-info">
-      <p>Aktuelle Farbe: 
-        <span :style="{ backgroundColor: color, color: textColor }">{{ color }}</span>
-      </p>
+      <div class="color-display-box">
+        <div class="color-box" :style="{ backgroundColor: color }"></div>
+        <div class="color-text">
+          <span>{{hexColor}}</span><br/>
+          <span>{{color}}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -27,7 +31,7 @@ const video = ref(null);
 const canvas = ref(null);
 
 const color = ref('rgb(0,0,0)');
-const textColor = ref('white');  // Dynamische Textfarbe für den Farbcode
+const hexColor = ref('#000000');
 
 // Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
@@ -38,6 +42,14 @@ const startCamera = async () => {
   } catch (error) {
     console.error("Fehler beim Starten der Kamera:", error);
   }
+};
+
+// Konvertiere RGB in Hex
+const rgbToHex = (r, g, b) => {
+  return (
+    "#" +
+    [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
+  );
 };
 
 // Live-Farbe extrahieren
@@ -56,6 +68,7 @@ const extractColor = () => {
   // Farbcode in RGB und als Hex
   const rgbColor = `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
   color.value = rgbColor;
+  hexColor.value = rgbToHex(data[0], data[1], data[2]);
 
   // Dynamische Textfarbe anpassen (Hell oder Dunkel)
   const brightness = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
@@ -105,14 +118,31 @@ canvas {
 
 .color-info {
   text-align: center;
-  font-size: 1.2rem;
   margin-top: 20px;
 }
 
-.color-info span {
+.color-display-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  max-width: 300px;
+  margin: auto;
+}
+
+.color-box {
+  width: 40px;
+  height: 40px;
   border-radius: 5px;
-  font-weight: bold;
+  border: 1px solid #000;
+}
+
+.color-text {
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .target-dot {
@@ -125,7 +155,6 @@ canvas {
   border-radius: 50%;
   opacity: 0.6;
   transform: translate(-50%, -50%);
-  pointer-events: none; /* Klicks nicht blockieren */
+  pointer-events: none;
 }
-
 </style>
