@@ -28,8 +28,8 @@
     </div>
 
     <!-- Modal zum Erstellen einer neuen Palette (nur Name wird eingegeben) -->
-    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
+    <div v-if="isModalOpen" :class="['modal-overlay', theme]" @click.self="closeModal">
+      <div :class="['modal-content', theme]">
         <h2>Neue Palette erstellen</h2>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
@@ -54,10 +54,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchPalettes, createPalette } from '../services/Palettes.js';
 
+const theme = inject('theme');
 const palettes = ref([]);
 const router = useRouter();
 const isModalOpen = ref(false);
@@ -159,15 +160,18 @@ onMounted(() => {
   align-items: center;
 }
 .modal-content {
-  background: #1e1e1e;
   padding: 20px;
   border-radius: 8px;
   width: 90%;
   max-width: 400px;
-  color: #ffffff;
 }
-.modal-content h2 {
-  margin-bottom: 20px;
+.modal-content.light {
+  background: #ffffff;
+  color: #000000;
+}
+.modal-content.dark {
+  background: #1e1e1e;
+  color: #ffffff;
 }
 .form-group {
   margin-bottom: 15px;
@@ -183,6 +187,10 @@ onMounted(() => {
   width: 100%;
   color: #ffffff;
   border-radius: 4px;
+}
+.modal-content.light .form-group input {
+  background-color: #ffffff;
+  color: #000000;
 }
 .modal-buttons {
   display: flex;
