@@ -6,11 +6,11 @@
 
     <div class="button-container">
       <button class="btn btn-primary" @click="triggerCamera">
-        <span class="btn-icon">📷</span>
+        <span class="mdi mdi-camera icon-large"></span>
         <span class="btn-text">Click here to open the camera</span>
       </button>
       <button class="btn btn-secondary mt-4" @click="triggerGallery">
-        <span class="btn-icon">🖼️</span>
+        <span class="mdi mdi-image icon-large"></span>
         <span class="btn-text">Click here to choose a picture</span>
       </button>
     </div>
@@ -112,9 +112,9 @@ const handleFileChange = (event) => {
   transition: background-color 0.3s ease;
 }
 
-.btn-icon {
-  font-size: 3rem;
-  margin-bottom: 10px;  /* Abstand zwischen Icon und Text */
+.icon-large {
+  font-size: 3rem; 
+  margin-bottom: 10px;  
 }
 
 .btn-text {
@@ -130,7 +130,6 @@ const handleFileChange = (event) => {
   background-color: #f0f0f0;
   color: #333333;
 }
-
 
 canvas {
   max-width: 100%;
