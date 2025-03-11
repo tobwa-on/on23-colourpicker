@@ -6,6 +6,7 @@ import PaletteView from "../views/PaletteView.vue";
 import SettingsView from "../views/SettingsView.vue";
 import {auth} from "../../firebase.js";
 import PaletteDetail from '../components/PaletteDetail.vue';
+import LiveColourPicker from "../components/LiveColourPicker.vue";
 
 const routes = [
     {
@@ -20,8 +21,15 @@ const routes = [
     },
     {
         path: '/home',
-        name: 'Home2',
+        name: 'Home',
         component: HomeView,
+        // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/colourpicker',
+        name: 'Pick a Colour',
+        component: LiveColourPicker,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }
     },
