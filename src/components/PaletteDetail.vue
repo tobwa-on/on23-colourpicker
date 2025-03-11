@@ -10,13 +10,27 @@
       <h1 v-if="palette" class="title m-0">{{ palette.name }}</h1>
 
       <div class="button-container">
-        <!-- Plus-Button, der immer sichtbar ist -->
-        <button class="btn btn-lg mdi mdi-plus" @click="openModal"></button>
-
-        <button class="btn btn-lg mdi mdi-star" @click="addIntelligentColorHandler"></button>
-
-        <!-- Button zum Hinzufügen einer random Farbe -->
-        <button class="btn btn-lg mdi mdi-dice-multiple" @click="handleAddRandomColor"></button>
+        <!-- Plus-Button with Dropdown -->
+        <div class="dropdown">
+          <button
+              class="btn btn-lg mdi mdi-plus"
+              type="button"
+              id="dropdownAddButton"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+          ></button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownAddButton">
+            <li>
+              <a class="mdi mdi-plus dropdown-item" @click="openModal"> Add Colour</a>
+            </li>
+            <li>
+              <a class="mdi mdi-dice-multiple dropdown-item" @click="handleAddRandomColor"> Random Colour</a>
+            </li>
+            <li>
+              <a class="mdi mdi-star dropdown-item" @click="addIntelligentColorHandler"> Intelligent Colour</a>
+            </li>
+          </ul>
+        </div>
 
         <!-- Editieren-Button als Dropdown rechts -->
         <div v-if="palette" class="dropdown">
