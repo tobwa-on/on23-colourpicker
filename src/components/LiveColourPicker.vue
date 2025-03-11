@@ -33,7 +33,7 @@
 
     <!-- Modal for displaying palette names -->
     <div v-if="isPaletteModalOpen" class="modal-overlay">
-      <div class="modal-content">
+      <div :class="['modal-content', theme]">
         <h2>Select a Palette</h2>
         <!-- Color preview and hex code -->
         <div class="color-preview">
@@ -282,6 +282,16 @@ canvas {
   text-align: center;
 }
 
+.modal-content.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.modal-content.dark {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
 .modal-content h2 {
   margin-bottom: 20px;
 }
@@ -333,6 +343,7 @@ canvas {
   font-size: 1rem;
   cursor: pointer;
   border: none;
+  background-color: #007aff;
   color: #ffffff;
 }
 
