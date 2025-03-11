@@ -7,6 +7,7 @@
     <!-- Video Livestream in einer Box -->
     <div class="video-container">
       <video ref="video" autoplay playsinline></video>
+      <div class="target-dot"></div>
       <canvas ref="canvas"></canvas>
     </div>
 
@@ -113,4 +114,18 @@ canvas {
   border-radius: 5px;
   font-weight: bold;
 }
+
+.target-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.6;
+  transform: translate(-50%, -50%);
+  pointer-events: none; /* Klicks nicht blockieren */
+}
+
 </style>
