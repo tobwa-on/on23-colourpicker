@@ -167,7 +167,8 @@ export const addColor = async (paletteId, newColor) => {
     const user = auth.currentUser;
 
     if (user) {
-        if (!newColor || typeof newColor !== 'string' || !/^#[0-9A-F]{6}$/i.test(newColor)) {
+        console.log(typeof newColor !== 'string');
+        if (!newColor || typeof newColor !== 'string' || !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(newColor)) {
             throw new Error('Invalid color format');
         }
 

@@ -155,7 +155,7 @@ import {
 
 const theme = inject('theme');
 const palette = ref(null);
-const newColor = ref('#000'); // Standardwert für neuen Farbwert
+const newColor = ref('#000000'); // Standardwert für neuen Farbwert
 const paletteName = ref('');
 const router = useRouter();
 const route = useRoute();
