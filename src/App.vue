@@ -3,11 +3,13 @@
     <!-- Main Content -->
     <router-view />
     <BottomNavbar v-if="showNavbar" />
+    <!-- Box based on theme -->
+    <div :class="['theme-box', theme]" ref="themeBox"></div>
   </div>
 </template>
 
 <script setup>
-import { provide, onMounted, computed, ref } from 'vue';
+import { provide, onMounted, computed, ref, nextTick, onUnmounted } from 'vue';
 import '@mdi/font/css/materialdesignicons.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -16,6 +18,7 @@ import { useRouter, useRoute } from 'vue-router';
 import BottomNavbar from "./components/BottomNavbar.vue"; // Vue Router verwenden
 
 const theme = ref('light');
+const themeBox = ref(null);
 
 const toggleTheme = () => {
   theme.value = theme.value === 'dark' ? 'light' : 'dark';
@@ -24,6 +27,13 @@ const toggleTheme = () => {
   localStorage.setItem('theme', theme.value);
 };
 
+const adjustBoxHeight = () => {
+  const navbar = document.querySelector('.navbar');
+  if (navbar && themeBox.value) {
+    const navbarHeight = navbar.offsetHeight;
+    themeBox.value.style.height = `calc(${navbarHeight}px)`;
+  }
+};
 
 provide('theme', theme);
 provide('toggleTheme', toggleTheme);
@@ -47,11 +57,28 @@ onMounted(() => {
   } else {
     document.documentElement.setAttribute('data-bs-theme', theme.value);
   }
+
+  nextTick(adjustBoxHeight);
+  window.addEventListener('resize', adjustBoxHeight);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', adjustBoxHeight);
 });
 </script>
 
 <style scoped>
 .form-check-input {
   cursor: pointer;
+}
+.theme-box {
+  width: 100%;
+  overflow: auto;
+}
+.theme-box.light {
+  background-color: #ffffff;
+}
+.theme-box.dark {
+  background-color: #000000;
 }
 </style>

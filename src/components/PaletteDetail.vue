@@ -67,8 +67,8 @@
     </div>
 
     <!-- Overlay für den Color Picker zum Hinzufügen einer Farbe -->
-    <div v-if="isModalOpen" class="modal-overlay">
-      <div class="modal-content color-picker-modal">
+    <div v-if="isModalOpen" :class="['modal-overlay', theme]">
+      <div :class="['modal-content color-picker-modal', theme]">
         <!-- Farb-Vorschau -->
         <div class="color-info">
           <div class="color-hex-code">{{ newColor }}</div>
@@ -85,8 +85,8 @@
     </div>
 
     <!-- Overlay für das Bearbeiten einer Farbe -->
-    <div v-if="isEditColorModalOpen" class="modal-overlay">
-      <div class="modal-content color-picker-modal">
+    <div v-if="isEditColorModalOpen" :class="['modal-overlay', theme]">
+      <div :class="['modal-content color-picker-modal', theme]">
         <h2>Edit Colour</h2>
         <div class="color-info">
           <div class="color-hex-code">{{ editColorValue }}</div>
@@ -102,8 +102,8 @@
     </div>
 
     <!-- Umbenennungs‑Popup -->
-    <div v-if="isRenameModalOpen" class="modal-overlay">
-      <div class="modal-content">
+    <div v-if="isRenameModalOpen" :class="['modal-overlay', theme]">
+      <div :class="['modal-content', theme]">
         <div class="modal-header">
           <h5 class="modal-title">Rename Collection</h5>
           <button type="button" class="btn-close" @click="closeRenameModal"></button>
@@ -126,7 +126,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   addColor,
@@ -139,6 +139,7 @@ import {
   generateRandomColor
 } from '../services/Palettes.js';
 
+const theme = inject('theme');
 const palette = ref(null);
 const newColor = ref('#000'); // Standardwert für neuen Farbwert
 const paletteName = ref('');
@@ -342,42 +343,34 @@ onMounted(() => {
   z-index: 1000;
 }
 .modal-content.color-picker-modal {
-  background: #fff;
-  border-radius: 10px;
   padding: 20px;
+  border-radius: 10px;
   width: 90%;
   max-width: 400px;
   text-align: center;
 }
-.color-info {
-  margin-bottom: 15px;
+.modal-content.color-picker-modal.light {
+  background: #ffffff;
+  color: #000000;
 }
-.color-hex-code {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-.color-input input[type="color"] {
-  width: 100%;
-  height: 50px;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-.modal-buttons .btn {
-  flex: 1;
+.modal-content.color-picker-modal.dark {
+  background: #1e1e1e;
+  color: #ffffff;
 }
 
-/* UMBENENNUNGS-POPUP (unverändert) */
+/* UMBENENNUNGS-POPUP */
 .modal-content {
-  background: white;
   padding: 20px;
   border-radius: 10px;
   width: 400px;
+}
+.modal-content.light {
+  background: #ffffff;
+  color: #000000;
+}
+.modal-content.dark {
+  background: #1e1e1e;
+  color: #ffffff;
 }
 .modal-header {
   display: flex;
