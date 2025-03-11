@@ -12,8 +12,8 @@
     </div>
 
     <!-- Farbcode anzeigen -->
-    <div class="color-info">
-      <div class="color-display-box">
+    <div class="color-info mb-3">
+      <div :class="['color-display-box', theme]">
         <div class="color-box" :style="{ backgroundColor: color }"></div>
         <div class="color-text">
           <span>{{hexColor}}</span><br/>
@@ -25,13 +25,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, inject } from 'vue';
 
 const video = ref(null);
 const canvas = ref(null);
 
 const color = ref('rgb(0,0,0)');
 const hexColor = ref('#000000');
+const theme = inject('theme');
 
 // Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
@@ -126,11 +127,18 @@ canvas {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background-color: #f0f0f0;
   border-radius: 12px;
   border: 1px solid #ddd;
   max-width: 300px;
   margin: auto;
+}
+.color-display-box.light {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+}
+.color-display-box.dark {
+  background-color: #343a40;
+  border: 1px solid #495057;
 }
 
 .color-box {
