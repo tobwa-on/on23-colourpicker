@@ -79,6 +79,6 @@ onUnmounted(() => {
   background-color: #ffffff;
 }
 .theme-box.dark {
-  background-color: #000000;
+  background-color: #212529;
 }
 </style>
