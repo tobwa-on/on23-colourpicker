@@ -39,6 +39,7 @@
                 type="text"
                 id="paletteName"
                 required
+                placeholder="Enter collection name"
             />
           </div>
           <div class="modal-buttons">
@@ -165,10 +166,7 @@ onMounted(() => {
   width: 90%;
   max-width: 400px;
 }
-.modal-content.light {
-  background: #ffffff;
-  color: #000000;
-}
+
 .modal-content.dark {
   background: #1e1e1e;
   color: #ffffff;
@@ -180,15 +178,14 @@ onMounted(() => {
   display: block;
   margin-bottom: 5px;
 }
-.form-group input {
-  background-color: #2a2a2a;
+.form-group{
   border: none;
   padding: 8px;
   width: 100%;
-  color: #ffffff;
   border-radius: 4px;
 }
-.modal-content.light .form-group input {
+
+.modal-content.light {
   background-color: #ffffff;
   color: #000000;
 }
@@ -212,4 +209,18 @@ onMounted(() => {
   background-color: #3a3a3a;
   color: #ffffff;
 }
+
+input {
+  border: 1px solid #ccc; /* Graue Umrandung */
+  padding: 8px;
+  border-radius: 4px; /* Leicht abgerundete Ecken */
+  outline: none; /* Entfernt die Standard-Outline */
+  width: 100%;
+}
+
+input:focus {
+  border-color: #007bff; /* Blaue Umrandung beim Fokus */
+  outline: 2px solid #007bff;
+}
+
 </style>
