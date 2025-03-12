@@ -41,33 +41,35 @@
           <div class="color-text">{{ savedHexColor }}</div>
         </div>
 
-        <div
-            v-for="(palette, index) in palettes"
-            :key="palette.id || index"
-            class="palette-card"
-            @click="addColour(palette.id)"
-        >
-          <div class="palette-header mt-2">
-            <h5>{{ palette.name }}</h5>
+        <div class="palette-list">
+          <div
+              v-for="(palette, index) in palettes"
+              :key="palette.id || index"
+              class="palette-card"
+              @click="addColour(palette.id)"
+          >
+            <div class="palette-header mt-2">
+              <h5>{{ palette.name }}</h5>
+            </div>
+            <div class="palette-body">
+              <!-- Wenn die Palette Farben enthält -->
+              <template v-if="palette.colors && palette.colors.length > 0">
+                <div
+                    v-for="(color, idx) in palette.colors"
+                    :key="idx"
+                    class="color-box"
+                    :style="{ backgroundColor: color }"
+                ></div>
+              </template>
+              <!-- Wenn die Palette leer ist -->
+              <template v-else>
+                <div class="color-box empty-box"></div>
+              </template>
+            </div>
           </div>
-          <div class="palette-body">
-            <!-- Wenn die Palette Farben enthält -->
-            <template v-if="palette.colors && palette.colors.length > 0">
-              <div
-                  v-for="(color, idx) in palette.colors"
-                  :key="idx"
-                  class="color-box"
-                  :style="{ backgroundColor: color }"
-              ></div>
-            </template>
-            <!-- Wenn die Palette leer ist -->
-            <template v-else>
-              <div class="color-box empty-box"></div>
-            </template>
-          </div>
-        </div>
 
-        <div class="modal-buttons">
+        </div>
+        <div class="modal-footer modal-buttons">
           <button class="btn btn-secondary mdi mdi-close" @click="closePaletteModal">Cancel</button>
           <!-- TODO -->
           <button class="btn btn-primary mdi mdi-plus" @click="closePaletteModal">New Palette</button>
@@ -141,7 +143,6 @@ const extractColor = () => {
   const brightness = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
   textColor.value = brightness < 128 ? 'white' : 'black';
 }
-
 
 // Live-Update alle 100ms
 onMounted(() => {
@@ -358,7 +359,7 @@ canvas {
 }
 
 .palette-list {
-  max-height: 350px; /* Set a max height for the list */
+  max-height: 300px; /* Set a max height for the list */
   overflow-y: auto; /* Enable vertical scrolling */
   margin-bottom: 20px;
   scrollbar-width: none; /* Firefox */
@@ -396,6 +397,10 @@ canvas {
   height: 40px;
   border: 1px solid grey;
   background-color: transparent;
+}
+
+.palette-list::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 </style>
