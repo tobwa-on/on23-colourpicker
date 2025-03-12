@@ -234,6 +234,15 @@ export const downloadPaletteAsImage = async (palette) => {
     palette.colors.forEach((color, index) => {
         ctx.fillStyle = color;
         ctx.fillRect(index * boxSize, 0, boxSize, boxSize);
+
+        // Determine font color based on background color brightness
+        const rgb = hexToRgb(color);
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+        ctx.fillStyle = brightness > 125 ? '#000000' : '#FFFFFF';
+
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(color, index * boxSize + boxSize / 2, boxSize / 2 + 7);
     });
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -256,4 +265,12 @@ export const downloadPaletteAsImage = async (palette) => {
     } else {
         saveAs(blob, `${palette.name}.png`);
     }
+};
+
+const hexToRgb = (hex) => {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return { r, g, b };
 };

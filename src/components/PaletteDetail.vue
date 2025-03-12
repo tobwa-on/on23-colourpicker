@@ -48,11 +48,13 @@
               <a class="mdi mdi-pencil dropdown-item" @click="handleEditName"> Rename</a>
             </li>
             <li>
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette"> Download</a>
+            </li>
+            <li>
               <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette"> Delete</a>
             </li>
           </ul>
         </div>
-        <button class="btn btn-lg mdi mdi-download" @click="handleDownloadPalette"></button>
       </div>
     </div>
 
