@@ -10,6 +10,7 @@ import {
     arrayRemove,
     arrayUnion
 } from 'firebase/firestore';
+import { saveAs } from 'file-saver';
 
 export const fetchPalettes = () => {
     return new Promise((resolve, reject) => {
@@ -220,5 +221,39 @@ export const updatePaletteName = async (paletteId, newName) => {
     } else {
         console.error('User is not authenticated');
         throw new Error('User is not authenticated');
+    }
+};
+
+export const downloadPaletteAsImage = async (palette) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const boxSize = 100;
+    canvas.width = palette.colors.length * boxSize;
+    canvas.height = boxSize;
+
+    palette.colors.forEach((color, index) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(index * boxSize, 0, boxSize, boxSize);
+    });
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+    if (window.showSaveFilePicker) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: `${palette.name}.png`,
+                types: [{
+                    description: 'PNG Image',
+                    accept: { 'image/png': ['.png'] },
+                }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+        } catch (error) {
+            console.error('Error saving file:', error);
+        }
+    } else {
+        saveAs(blob, `${palette.name}.png`);
     }
 };

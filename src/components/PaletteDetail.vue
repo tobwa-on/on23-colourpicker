@@ -52,6 +52,7 @@
             </li>
           </ul>
         </div>
+        <button class="btn btn-lg mdi mdi-download" @click="handleDownloadPalette"></button>
       </div>
     </div>
 
@@ -149,7 +150,8 @@ import {
   updateColor,
   updatePaletteName,
   getIntelligentColor,
-  generateRandomColor
+  generateRandomColor,
+  downloadPaletteAsImage
 } from '../services/Palettes.js';
 
 const theme = inject('theme');
@@ -281,6 +283,12 @@ const addIntelligentColorHandler = async () => {
     palette.value.colors.push(intelligentColor);
   } catch (error) {
     console.error('Error adding intelligent color:', error);
+  }
+};
+
+const handleDownloadPalette = async () => {
+  if (palette.value) {
+    await downloadPaletteAsImage(palette.value);
   }
 };
 
