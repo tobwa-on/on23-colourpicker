@@ -1,11 +1,10 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <h1 class="title m-0">Collections</h1>
+      <h1 class="title m-0">My Collections</h1>
       <button class="btn add-btn mdi mdi-plus btn-lg" @click="openModal"></button>
     </div>
 
-    <!-- Paletten-Anzeige -->
     <div class="palettes-container">
       <div
           v-for="(palette, index) in palettes"
@@ -17,57 +16,50 @@
           <h5>{{ palette.name }}</h5>
         </div>
         <div class="palette-body">
-          <div
-              v-for="(color, idx) in palette.colors"
-              :key="idx"
-              class="color-box"
-              :style="{ backgroundColor: color }"
-          ></div>
+          <!-- Wenn die Palette Farben enthält -->
+          <template v-if="palette.colors && palette.colors.length > 0">
+            <div
+                v-for="(color, idx) in palette.colors"
+                :key="idx"
+                class="color-box"
+                :style="{ backgroundColor: color }"
+            ></div>
+          </template>
+          <!-- Wenn die Palette leer ist -->
+          <template v-else>
+            <div class="color-box empty-box"></div>
+          </template>
         </div>
       </div>
     </div>
 
-    <!-- Modal zum Erstellen einer neuen Palette (nur Name wird eingegeben) -->
-    <div v-if="isModalOpen" :class="['modal-overlay', theme]" @click.self="closeModal">
-      <div :class="['modal-content', theme]">
-        <h2>Neue Palette erstellen</h2>
-        <form @submit.prevent="handleSubmit">
-          <div class="form-group">
-            <label for="paletteName">Palettenname</label>
-            <input
-                v-model="newPaletteName"
-                type="text"
-                id="paletteName"
-                required
-                placeholder="Enter collection name"
-            />
-          </div>
-          <div class="modal-buttons">
-            <button type="submit" class="btn btn-primary">Speichern</button>
-            <button type="button" class="btn btn-secondary" @click="closeModal">
-              Abbrechen
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Integration der ausgelagerten NewPaletteModal-Komponente -->
+    <CreatePaletteModal
+        :isOpen="isModalOpen"
+        :theme="theme"
+        @close="closeModal"
+        @submit="handleSubmitNewPalette"
+    />
   </div>
 </template>
-
 <script setup>
 import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchPalettes, createPalette } from '../services/Palettes.js';
+import CreatePaletteModal from './CreatePaletteModal.vue';
 
 const theme = inject('theme');
 const palettes = ref([]);
 const router = useRouter();
 const isModalOpen = ref(false);
-const newPaletteName = ref('');
 
 const loadPalettes = async () => {
   try {
-    palettes.value = await fetchPalettes();
+    const fetchedPalettes = await fetchPalettes();
+    // Alphabetisch sortieren nach dem Palettennamen
+    palettes.value = fetchedPalettes.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
   } catch (error) {
     console.error('Error loading palettes:', error);
   }
@@ -79,13 +71,11 @@ const openModal = () => {
 
 const closeModal = () => {
   isModalOpen.value = false;
-  newPaletteName.value = '';
 };
 
-const handleSubmit = async () => {
-  if (newPaletteName.value) {
-    // Erstelle eine neue Palette nur mit dem Namen. Die Palette startet mit einer leeren Farbenliste.
-    await createPalette(newPaletteName.value, []);
+const handleSubmitNewPalette = async (paletteName) => {
+  if (paletteName) {
+    await createPalette(paletteName, []); // Neue Palette ohne Farben erstellen
     await loadPalettes();
     closeModal();
   }
@@ -98,10 +88,11 @@ const goToPaletteDetail = (paletteId) => {
 onMounted(() => {
   loadPalettes();
 });
+
 </script>
 
+
 <style scoped>
-/* Header mit Titel und Plus-Button */
 .header-section {
   display: flex;
   align-items: center;
@@ -110,16 +101,13 @@ onMounted(() => {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-.header-section .title {
-  margin: 0;
-  padding: 0;
-}
+
 .add-btn {
   position: absolute;
   right: 0;
   background-color: transparent;
   border: none;
-  font-size: 5rem;
+  font-size: 1.7rem;
   cursor: pointer;
 }
 
@@ -128,107 +116,34 @@ onMounted(() => {
   flex-direction: column;
   gap: 15px;
 }
+
 .palette-card {
-  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
 }
+
 .palette-header {
   padding: 10px;
 }
+
 .palette-header h5 {
   margin: 0;
   font-size: 1.1rem;
 }
+
 .palette-body {
   display: flex;
+  border-radius: 8px;
 }
+
 .color-box {
   flex: 1;
-  height: 80px;
+  height: 60px;
 }
 
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.modal-content {
-  padding: 20px;
+.empty-box {
+  border: 1px solid grey;
   border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
+  background-color: transparent;
 }
-
-.modal-content.dark {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-.form-group {
-  margin-bottom: 15px;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-}
-.form-group{
-  border: none;
-  padding: 8px;
-  width: 100%;
-  border-radius: 4px;
-}
-
-.modal-content.light {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.modal-buttons {
-  display: flex;
-  width: 100%;
-  gap: 10px; /* Optional: Abstand zwischen den Buttons */
-  margin-top: 20px; /* Optional: Abstand nach oben */
-}
-
-.modal-buttons .btn {
-  flex: 1;
-  margin: 0;
-}
-
-.btn {
-  padding: 10px 15px;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  border: none;
-}
-.btn-primary {
-  background-color: #007aff;
-  color: #ffffff;
-}
-.btn-secondary {
-  background-color: #3a3a3a;
-  color: #ffffff;
-}
-
-input {
-  border: 1px solid #ccc; /* Graue Umrandung */
-  padding: 8px;
-  border-radius: 4px; /* Leicht abgerundete Ecken */
-  outline: none; /* Entfernt die Standard-Outline */
-  width: 100%;
-}
-
-input:focus {
-  border-color: #007bff; /* Blaue Umrandung beim Fokus */
-  outline: 2px solid #007bff;
-}
-
 </style>
