@@ -51,6 +51,9 @@
               <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette"> Download</a>
             </li>
             <li>
+              <a class="mdi mdi-palette dropdown-item" @click="goToPaintCanvas"> Paint Canvas</a>
+            </li>
+            <li>
               <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette"> Delete</a>
             </li>
           </ul>
@@ -292,6 +295,10 @@ const handleDownloadPalette = async () => {
   if (palette.value) {
     await downloadPaletteAsImage(palette.value);
   }
+};
+
+const goToPaintCanvas = () => {
+  router.push({ name: 'PaintCanvas', params: { id: route.params.id } });
 };
 
 onMounted(() => {

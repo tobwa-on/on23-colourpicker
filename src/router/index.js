@@ -4,9 +4,10 @@ import Register from '../components/Register.vue';
 import HomeView from "../views/HomeView.vue";
 import PaletteView from "../views/PaletteView.vue";
 import SettingsView from "../views/SettingsView.vue";
-import {auth} from "../../firebase.js";
+import { auth } from "../../firebase.js";
 import PaletteDetail from '../components/PaletteDetail.vue';
 import LiveColourPicker from "../components/LiveColourPicker.vue";
+import PaintCanvasView from '../views/PaintCanvasView.vue';
 
 const routes = [
     {
@@ -52,6 +53,12 @@ const routes = [
         name: 'Settings',
         component: SettingsView,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/paint-canvas/:id',
+        name: 'PaintCanvas',
+        component: PaintCanvasView,
         meta: { requiresAuth: true }
     },
     {
