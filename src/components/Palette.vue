@@ -189,11 +189,19 @@ onMounted(() => {
   background-color: #ffffff;
   color: #000000;
 }
+
 .modal-buttons {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  width: 100%;
+  gap: 10px; /* Optional: Abstand zwischen den Buttons */
+  margin-top: 20px; /* Optional: Abstand nach oben */
 }
+
+.modal-buttons .btn {
+  flex: 1;
+  margin: 0;
+}
+
 .btn {
   padding: 10px 15px;
   border-radius: 4px;

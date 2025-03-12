@@ -19,41 +19,69 @@
           <div class="mx-auto d-flex align-items-center gap-2">
             <div class="color-box" :style="{ backgroundColor: color }"></div>
             <div class="color-text">
-              <span>{{hexColor}}</span><br/>
-              <span>{{color}}</span>
+              <span>{{ hexColor }}</span><br/>
+              <span>{{ color }}</span>
             </div>
           </div>
         </div>
       </div>
       <!-- Add Colour Button -->
       <div class="add-colour-button-container">
-        <button class="btn btn-primary add-colour-button" @click="saveCurrentColor">Add Colour</button>
+        <button class="btn btn-primary add-colour-button mdi mdi-plus" @click="saveCurrentColor"></button>
       </div>
     </div>
 
-    <!-- Modal for displaying palette names -->
     <div v-if="isPaletteModalOpen" class="modal-overlay">
       <div :class="['modal-content', theme]">
-        <h2>Select a Palette</h2>
-        <!-- Color preview and hex code -->
+        <h3>Add selected colour to a palette</h3>
+        <!-- Color preview and current hex code -->
         <div class="color-preview">
+          Selected colour:
           <div class="color-box" :style="{ backgroundColor: savedColor }"></div>
           <div class="color-text">{{ savedHexColor }}</div>
         </div>
-        <div class="palette-list">
-          <button v-for="palette in palettes" :key="palette.id" class="btn btn-palette btn-secondary my-1" @click="addColour(palette.id)">
-            {{ palette.name }}
-          </button>
+
+        <div
+            v-for="(palette, index) in palettes"
+            :key="palette.id || index"
+            class="palette-card"
+            @click="addColour(palette.id)"
+        >
+          <div class="palette-header mt-2">
+            <h5>{{ palette.name }}</h5>
+          </div>
+          <div class="palette-body">
+            <!-- Wenn die Palette Farben enthält -->
+            <template v-if="palette.colors && palette.colors.length > 0">
+              <div
+                  v-for="(color, idx) in palette.colors"
+                  :key="idx"
+                  class="color-box"
+                  :style="{ backgroundColor: color }"
+              ></div>
+            </template>
+            <!-- Wenn die Palette leer ist -->
+            <template v-else>
+              <div class="color-box empty-box"></div>
+            </template>
+          </div>
         </div>
-        <button class="btn btn-primary" @click="closePaletteModal">Cancel</button>
+
+        <div class="modal-buttons">
+          <button class="btn btn-secondary mdi mdi-close" @click="closePaletteModal">Cancel</button>
+          <!-- TODO -->
+          <button class="btn btn-primary mdi mdi-plus" @click="closePaletteModal">New Palette</button>
+        </div>
       </div>
     </div>
+
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, inject } from 'vue';
-import { fetchPalettes, addColor } from '../services/Palettes.js';
+import {ref, onMounted, onBeforeUnmount, inject} from 'vue';
+import {fetchPalettes, addColor} from '../services/Palettes.js';
 
 const video = ref(null);
 const canvas = ref(null);
@@ -65,11 +93,12 @@ const savedHexColor = ref('#000000');
 const theme = inject('theme');
 const isPaletteModalOpen = ref(false);
 const palettes = ref([]);
+const textColor = ref()
 
 // Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
   try {
-    const constraints = { video: { facingMode: "environment" } };
+    const constraints = {video: {facingMode: "environment"}};
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.value.srcObject = stream;
   } catch (error) {
@@ -80,17 +109,22 @@ const startCamera = async () => {
 // Konvertiere RGB in Hex
 const rgbToHex = (r, g, b) => {
   return (
-    "#" +
-    [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
+      "#" +
+      [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
   ).toUpperCase();
 };
 
 // Live-Farbe extrahieren
 const extractColor = () => {
+  if (!canvas.value || !video.value) return; // Sicherheitscheck, wenn canvas noch nicht geladen ist
+
   const ctx = canvas.value.getContext('2d');
+  if (!ctx) return;
+
+  // Setzen der Canvas-Größe basierend auf dem Video
   canvas.value.width = video.value.videoWidth;
   canvas.value.height = video.value.videoHeight;
-  
+
   // Zeichnen des aktuellen Frames vom Video auf das Canvas
   ctx.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
 
@@ -98,7 +132,7 @@ const extractColor = () => {
   const pixel = ctx.getImageData(canvas.value.width / 2, canvas.value.height / 2, 1, 1);
   const data = pixel.data;
 
-  // Farbcode in RGB und als Hex
+  // Farbcode in RGB und als Hex festlegen
   const rgbColor = `rgb(${data[0]}, ${data[1]}, ${data[2]})`;
   color.value = rgbColor;
   hexColor.value = rgbToHex(data[0], data[1], data[2]);
@@ -106,7 +140,8 @@ const extractColor = () => {
   // Dynamische Textfarbe anpassen (Hell oder Dunkel)
   const brightness = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
   textColor.value = brightness < 128 ? 'white' : 'black';
-};
+}
+
 
 // Live-Update alle 100ms
 onMounted(() => {
@@ -177,7 +212,6 @@ const addColour = async (paletteId) => {
   position: relative;
   display: flex;
   justify-content: center;
-  border: 2px solid #007aff;
   border-radius: 10px;
   overflow: hidden;
   max-width: 800px;
@@ -200,7 +234,7 @@ canvas {
   left: 50%;
   transform: translateX(-50%);
   text-align: left;
-  width: calc(100% - 20px); 
+  width: calc(100% - 20px);
 }
 
 .color-display-box {
@@ -212,10 +246,12 @@ canvas {
   border: 1px solid #ddd;
   width: 100%;
 }
+
 .color-display-box.light {
   background-color: #f8f9fa;
   border: 1px solid #ced4da;
 }
+
 .color-display-box.dark {
   background-color: #343a40;
   border: 1px solid #495057;
@@ -225,7 +261,6 @@ canvas {
   width: 40px;
   height: 40px;
   border-radius: 5px;
-  border: 1px solid #000;
 }
 
 .color-text {
@@ -251,7 +286,7 @@ canvas {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 20px); 
+  width: calc(100% - 20px);
 }
 
 .add-colour-button {
@@ -282,6 +317,18 @@ canvas {
   text-align: center;
 }
 
+.modal-buttons {
+  display: flex;
+  width: 100%;
+  gap: 10px; /* Optional: Abstand zwischen den Buttons */
+  margin-top: 20px; /* Optional: Abstand nach oben */
+}
+
+.modal-buttons .btn {
+  flex: 1;
+  margin: 0;
+}
+
 .modal-content.light {
   background-color: #ffffff;
   color: #000000;
@@ -308,33 +355,14 @@ canvas {
   width: 40px;
   height: 40px;
   border-radius: 5px;
-  border: 1px solid #000;
 }
 
 .palette-list {
-  max-height: 200px; /* Set a max height for the list */
+  max-height: 350px; /* Set a max height for the list */
   overflow-y: auto; /* Enable vertical scrolling */
   margin-bottom: 20px;
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-}
-
-.palette-list::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
-
-.btn-palette {
-  border-radius: 5px;
-  width: 100%;	
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  background-color: #f0f0f0; /* Grey background */
-  border: 1px solid #ccc;
-  color: #333;
-}
-
-.btn-palette:hover {
-  background-color: #e0e0e0;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
 .modal-content .btn {
@@ -343,12 +371,31 @@ canvas {
   font-size: 1rem;
   cursor: pointer;
   border: none;
-  background-color: #007aff;
   color: #ffffff;
 }
 
-.modal-content .btn-secondary {
+.modal-content {
   background-color: #6c757d;
   color: #ffffff;
 }
+
+.palette-body {
+  display: flex;
+  width: 100%;
+  gap: 5px;
+}
+
+.palette-body .color-box {
+  flex: 1;
+  height: 40px;
+}
+
+
+.palette-body .color-box.empty-box {
+  flex: 1;
+  height: 40px;
+  border: 1px solid grey;
+  background-color: transparent;
+}
+
 </style>
