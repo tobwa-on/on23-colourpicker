@@ -9,30 +9,7 @@
         <span class="mdi mdi-camera icon-large"></span>
         <span class="btn-text">Click here to open the camera</span>
       </button>
-      <button class="btn btn-secondary mt-4" @click="triggerGallery">
-        <span class="mdi mdi-image icon-large"></span>
-        <span class="btn-text">Click here to choose a picture</span>
-      </button>
     </div>
-
-    <!-- Verstecktes Input-Element für Kamera -->
-    <input
-        ref="cameraInput"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        class="d-none"
-        @change="handleFileChange"
-    />
-
-    <!-- Verstecktes Input-Element für Galerie -->
-    <input
-        ref="galleryInput"
-        type="file"
-        accept="image/*"
-        class="d-none"
-        @change="handleFileChange"
-    />
   </div>
 </template>
 
@@ -88,23 +65,6 @@ const triggerCamera = () => {
 
 .btn-text {
   font-size: 1.1rem;
-}
-
-.btn-primary {
-  background-color: #007aff;
-  color: #ffffff;
-}
-
-.btn-secondary {
-  background-color: #f0f0f0;
-  color: #333333;
-}
-
-canvas {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
-  cursor: crosshair;
 }
 
 </style>
