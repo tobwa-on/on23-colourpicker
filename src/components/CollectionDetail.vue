@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <router-link to="/collection">
+      <router-link to="/collections">
         <button class="btn btn-lg mdi mdi-arrow-left m-0 p-0"></button>
       </router-link>
 
