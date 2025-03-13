@@ -91,31 +91,13 @@
       </div>
     </div>
 
-    <!-- Rename Modal -->
-    <div v-if="isRenameModalOpen" :class="['modal-overlay', theme]">
-      <div :class="['modal-content', theme]">
-        <div class="modal-header">
-          <h5 class="modal-title">Rename Collection</h5>
-          <button type="button" class="btn-close" @click="closeRenameModal"></button>
-        </div>
-        <div class="modal-body">
-          <input
-              type="text"
-              class="form-control"
-              v-model="paletteName"
-              placeholder="Neuen Namen eingeben"
-          />
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeRenameModal">
-            Cancel
-          </button>
-          <button type="button" class="btn btn-primary mdi mdi-check" @click="handleSaveName">
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
+    <RenameCollectionModal
+        :isOpen="isRenameModalOpen"
+        :theme="theme"
+        :collectionName="palette ? palette.name : ''"
+        @close="closeRenameModal"
+        @submit="handleSubmitRename"
+    />
 
     <EditColourModal
         :isOpen="isColourModalOpen"
@@ -128,8 +110,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref, inject } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import {onMounted, ref, inject} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import {
   addColor,
   deleteColor,
@@ -142,6 +124,7 @@ import {
   downloadPaletteAsImage
 } from '../services/Palettes.js';
 import EditColourModal from "./EditColourModal.vue";
+import RenameCollectionModal from "./RenameCollectionModal.vue";
 
 const theme = inject('theme');
 const palette = ref(null);
@@ -188,7 +171,6 @@ const closeColourModal = () => {
 
 const handleSubmitColor = async (newColor) => {
   if (colorModalMode.value === 'edit' && editColorIndex.value !== null) {
-    // Editiermodus: updateColor statt addColor
     const oldColor = palette.value.colors[editColorIndex.value];
     try {
       await updateColor(palette.value.id, oldColor, newColor);
@@ -197,7 +179,6 @@ const handleSubmitColor = async (newColor) => {
       console.error('Error updating color:', error);
     }
   } else {
-    // Add-Modus
     try {
       await addColor(palette.value.id, newColor);
       palette.value.colors.push(newColor);
@@ -208,7 +189,6 @@ const handleSubmitColor = async (newColor) => {
   closeColourModal();
 };
 
-// Rename-Funktionen
 const closeRenameModal = () => {
   isRenameModalOpen.value = false;
 };
@@ -217,11 +197,11 @@ const handleEditName = () => {
   isRenameModalOpen.value = true;
 };
 
-const handleSaveName = async () => {
-  if (paletteName.value && paletteName.value !== palette.value.name) {
+const handleSubmitRename = async (newName) => {
+  if (newName && newName !== palette.value.name) {
     try {
-      await updatePaletteName(palette.value.id, paletteName.value);
-      palette.value.name = paletteName.value;
+      await updatePaletteName(palette.value.id, newName);
+      palette.value.name = newName;
     } catch (error) {
       console.error('Error updating palette name:', error);
     }
@@ -229,11 +209,10 @@ const handleSaveName = async () => {
   isRenameModalOpen.value = false;
 };
 
-// Weitere Funktionen zur Palette-Verwaltung
 const handleDeletePalette = async () => {
   try {
     await deletePalette(palette.value.id);
-    await router.push({ name: 'Palette' });
+    await router.push({name: 'Palette'});
   } catch (error) {
     console.error('Error deleting palette:', error);
   }
