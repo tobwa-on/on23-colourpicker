@@ -9,6 +9,7 @@
               type="text"
               class="form-control"
               placeholder="Enter new collection name."
+              maxlength="8"
           />
         </div>
         <div class="modal-footer modal-buttons mt-3">
