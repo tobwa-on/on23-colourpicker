@@ -107,17 +107,14 @@ const handleSubmit = () => {
   flex: 1;
   margin: 0;
 }
-
 input {
   border: 1px solid #ccc;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 12px; /* Größeres Padding für mehr Fläche */
+  border-radius: 6px;
   outline: none;
-  width: 100%;
+  width: 100%; /* Stellt sicher, dass es die verfügbare Breite einnimmt */
+  height: 50px; /* Erhöht die Höhe für größere Sichtbarkeit */
+  font-size: 1.2rem; /* Größere Schrift für bessere Lesbarkeit */
 }
 
-input:focus {
-  border-color: #007bff;
-  outline: 2px solid #007bff;
-}
 </style>

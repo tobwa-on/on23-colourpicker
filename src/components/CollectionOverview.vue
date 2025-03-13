@@ -2,7 +2,10 @@
   <div class="container mt-4">
     <div class="header-section">
       <h1 class="title m-0">My Collections</h1>
-      <button class="btn add-btn mdi mdi-plus btn-lg" @click="openModal"></button>
+      <button
+          class="btn add-btn mdi mdi-plus-circle-outline"
+          @click="openModal"
+      ></button>
     </div>
 
     <div class="collection-container">
@@ -101,10 +104,22 @@ onMounted(() => {
 .add-btn {
   position: absolute;
   right: 0;
-  background-color: transparent;
+  top: 50%;
+  transform: translateY(-50%);
   border: none;
   font-size: 1.7rem;
   cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+
+/* Active-Effekt */
+.add-btn:active {
+  transform: translateY(-50%) scale(0.95);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.bg-dark .add-btn:hover {
+  background-color: #5a6268;
 }
 
 .collection-container {
@@ -144,5 +159,6 @@ onMounted(() => {
   border-radius: 8px;
   background-color: transparent;
 }
+
 
 </style>

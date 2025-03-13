@@ -1,70 +1,147 @@
 <template>
   <div class="container mt-4">
-    <div class="header-section">
-      <h1 class="title">Colour Picker</h1>
-    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <!-- Header -->
+        <div class="header text-center mb-4">
+          <h2> Home</h2>
+        </div>
 
-    <div class="button-container">
-      <button class="btn btn-primary" @click="triggerCamera">
-        <span class="mdi mdi-camera icon-large"></span>
-        <span class="btn-text">Click here to open the camera</span>
-      </button>
+        <div class="content d-flex flex-column align-items-center">
+          <div class="inhalt">
+            <div v-if="lastPalette" class="last-palette mb-4" @click="goToPaletteDetails(lastPalette.id)">
+              <p class="mb-2">Last modified collection:</p>
+              <h4 class="palette-title">{{ lastPalette.name }}</h4>
+              <div class="palette-preview d-flex">
+                <div
+                    v-for="(color, index) in lastPalette.colors"
+                    :key="index"
+                    class="color-box"
+                    :style="{ backgroundColor: color }"
+                ></div>
+              </div>
+              <p class="palette-note mdi mdi-arrow-right">Click to view palette details</p>
+            </div>
+
+            <div class="text-center button-container flex-grow-1 d-flex align-items-center">
+              <button class="btn btn-primary scalable-button flex-grow-1" @click="goToColourPicker">
+                <span class="mdi mdi-image-filter-center-focus icon-large"></span>
+                <span class="btn-text">Tap here to open the camera</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue';
+import {ref, computed, onMounted, inject} from 'vue';
 import router from "../router/index.js";
+// Angenommen, deine Collection-Service bietet eine fetchCollections()-Methode
+import {fetchCollections} from "../services/CollectionService.js";
 
-const cameraInput = ref(null);
-const galleryInput = ref(null);
-const canvas = ref(null);
+// Hole das aktuelle Theme (z. B. "light" oder "dark")
+const theme = inject('theme');
 
-const triggerCamera = () => {
+// Reaktive Liste der Paletten/Collections
+const collections = ref([]);
+const loadCollections = async () => {
+  try {
+    collections.value = await fetchCollections();
+  } catch (error) {
+    console.error("Error loading collections:", error);
+  }
+};
+
+// Computed-Property für die zuletzt erstellte Palette
+const lastPalette = computed(() => {
+  if (collections.value.length > 0) {
+    // Sortiere Sammlungen anhand eines Attributs, z.B. lastModified
+    const sortedCollections = [...collections.value].sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+    return sortedCollections[0]; // Letzte bearbeitete Palette
+  }
+  return null;
+});
+
+// Navigation
+const goToColourPicker = () => {
   router.push('/colourpicker');
-}
+};
 
+const goToPaletteDetails = async (id) => {
+  await router.push(`/palette-details/${id}`);
+};
+
+onMounted(() => {
+  loadCollections();
+});
 </script>
-
 <style scoped>
-.header-section {
-  text-align: center;
+.header h2 {
+  font-size: 2rem;
 }
 
-.button-container {
+.content {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly; /* Verteilt die Buttons gleichmäßig über die gesamte Höhe */
+  justify-content: center;
   align-items: center;
-  height: 70vh;               /* Nimmt die gesamte Bildschirmhöhe ein */
-  padding: 20px;
-  box-sizing: border-box;      /* Stellt sicher, dass Padding nicht die Höhe beeinflusst */
+  height: calc(100vh - 180px);
 }
 
-.btn {
-  display: flex;
-  flex-direction: column;      /* Icons und Text untereinander anordnen */
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 35vh;
-  padding: 20px;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
+.last-palette {
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
+  padding: 20px;
+  border: 1px solid lightgrey;
+  border-radius: 10px;
+  transition: transform 0.3s;
+  height:30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
+.inhalt {
+  width:100%;
+}
+
+.palette-title {
+  font-size: 1.5rem;
+}
+
+.palette-preview {
+  margin-bottom: 10px;
+  display: flex;
+  border-radius: 8px;
+}
+
+.color-box {
+   flex: 1;
+   height: 40px;
+}
+
+.palette-note {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Button-Styling */
+.scalable-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  height:35vh
 }
 
 .icon-large {
-  font-size: 3rem;
-  margin-bottom: 10px;
+  font-size: 2.5rem;
 }
-
-.btn-text {
-  font-size: 1.1rem;
-}
-
 </style>
+

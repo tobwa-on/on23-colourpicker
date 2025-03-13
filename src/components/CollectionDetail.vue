@@ -1,18 +1,15 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
+      <h1 v-if="collection" class="title m-0">{{ collection.name }}</h1>
       <router-link to="/collections">
-        <button class="btn btn-lg mdi mdi-arrow-left m-0 p-0"></button>
+        <button class="btn btn-lg add-btn mdi mdi-arrow-left m-0 p-0"></button>
       </router-link>
 
-      <!-- Titel in der Mitte -->
-      <h1 v-if="collection" class="title m-0">{{ collection.name }}</h1>
-
       <div class="button-container">
-        <!-- Dropdown für Farbhinzufügen -->
         <div class="dropdown">
           <button
-              class="btn btn-lg mdi mdi-plus"
+              class="btn mdi mdi-plus-circle-outline add-btn"
               type="button"
               id="dropdownAddButton"
               data-bs-toggle="dropdown"
@@ -37,17 +34,15 @@
           </ul>
         </div>
 
-        <!-- Dropdown für weitere Einstellungen (Rename, Download, Delete) -->
-        <div v-if="collection" class="dropdown">
+        <div class="dropdown">
           <button
-              class="btn btn-lg"
+              class="btn add-btn mdi mdi-dots-vertical"
               type="button"
               id="dropdownMenuButton"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-          >
-            <i class="mdi mdi-dots-vertical"></i>
-          </button>
+          />
+
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <li>
               <a class="mdi mdi-pencil dropdown-item" @click="handleEditName">
@@ -82,8 +77,10 @@
                 <div class="color-hex" :style="{ color: getTextColor(color) }">{{ color }}</div>
               </div>
               <div class="btn-container">
-                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil" :style="{ color: getTextColor(color) }"></button>
-                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can" :style="{ color: getTextColor(color) }"></button>
+                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil"
+                        :style="{ color: getTextColor(color) }"></button>
+                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can"
+                        :style="{ color: getTextColor(color) }"></button>
               </div>
             </div>
           </div>
@@ -124,7 +121,7 @@ import {
   downloadCollectionAsImage
 } from '../services/CollectionService.js';
 import EditColourModal from "./EditColourModal.vue";
-import RenameCollectionModal from "./RenameCollectionModal.vue";
+import RenameCollectionModal from "./CollectionRenameModal.vue";
 
 const theme = inject('theme');
 const collection = ref(null);
@@ -268,7 +265,6 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped>
 .header-section {
   display: flex;
@@ -276,21 +272,20 @@ onMounted(() => {
   align-items: center;
   position: relative;
   margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .header-section .title {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0;
-  padding: 0;
+  top: 0;
 }
 
 .button-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  position: absolute;
+  right: 0;
 }
 
 .color-box {
@@ -309,95 +304,6 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  color: #fff;
-}
-
-/* MODAL OVERLAY & COLOR PICKER MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content.color-picker-modal {
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.modal-content.color-picker-modal.light {
-  background: #ffffff;
-  color: #000000;
-}
-
-.modal-content.color-picker-modal.dark {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.modal-content.color-picker-modal .color-input input[type="color"] {
-  width: 100%;
-  height: 80px;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Die Buttons im Modal sollen die ganze Breite einnehmen, mit Abstand */
-.modal-content.color-picker-modal .modal-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.modal-content.color-picker-modal .modal-buttons button {
-  flex: 1;
-}
-
-
-.modal-content {
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-}
-
-.modal-content.light {
-  background: #ffffff;
-  color: #000000;
-}
-
-.modal-content.dark {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-body {
-  margin-bottom: 20px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.modal-footer .btn {
-  padding: 10px 20px;
 }
 
 .btn-container button {
@@ -405,4 +311,38 @@ onMounted(() => {
   color: #fff;
 }
 
+.add-btn {
+  color: white;
+  border-radius: 50%;
+  font-size: 1.7rem;
+  cursor:pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn {
+  padding: 10px 15px;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: static;
+
+    border: none;
+    box-shadow: none;
+  }
+
+  .dropdown-item {
+    text-align: center;
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+}
+
+.dropdown-menu {
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
 </style>
