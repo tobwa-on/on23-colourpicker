@@ -27,7 +27,7 @@ const routes = [
     },
     {
         path: '/colourpicker',
-        name: 'Pick a Colour',
+        name: 'ColourPicker',
         component: LiveColourPicker,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }

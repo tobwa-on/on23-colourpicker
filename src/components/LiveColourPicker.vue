@@ -203,12 +203,12 @@ const createNewCollection = async (collectionName) => {
 const addColour = async (collectionId) => {
   try {
     await addColor(collectionId, savedHexColor.value);
-    // Lokale Aktualisierung: Finde die Collection und füge die Farbe hinzu
+
     const targetCollection = collections.value.find(
         (collection) => collection.id === collectionId
     );
     if (targetCollection) {
-      // Falls colors noch nicht existieren, initialisiere sie
+
       targetCollection.colors = targetCollection.colors || [];
       targetCollection.colors.push(savedHexColor.value);
     }

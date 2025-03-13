@@ -211,7 +211,7 @@ const handleSubmitRename = async (newName) => {
 const handleDeleteCollection = async () => {
   try {
     await deleteCollection(collection.value.id);
-    await router.push({name: 'Collection'});
+    await router.push('/collections');
   } catch (error) {
     console.error('Error deleting collection:', error);
   }
