@@ -10,6 +10,7 @@
               id="collectionName"
               required
               placeholder="Enter collection name"
+              maxlength="8"
           />
         </div>
         <div class="modal-buttons mt-3">
