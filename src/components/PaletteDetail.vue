@@ -82,8 +82,8 @@
                 <div class="color-hex" :style="{ color: getTextColor(color) }">{{ color }}</div>
               </div>
               <div class="btn-container">
-                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil"></button>
-                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can"></button>
+                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil" :style="{ color: getTextColor(color) }"></button>
+                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can" :style="{ color: getTextColor(color) }"></button>
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ const handleDownloadPalette = async () => {
   }
 };
 
-// Farbauswahl für Hex-Code Anzeige basierend auf Kontrast
+// Farbauswahl für Hex-Code und Stift/Müll-Icon Anzeige basierend auf Kontrast zum Hintergrund
 const getTextColor = (hexColor) => {
   const r = parseInt(hexColor.slice(1, 3), 16);
   const g = parseInt(hexColor.slice(3, 5), 16);
