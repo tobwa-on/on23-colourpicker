@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
         <!-- Header -->
-        <div class="header text-center mb-4">
+        <div class="header text-center ">
           <h2> Home</h2>
         </div>
 
@@ -40,13 +40,11 @@
 <script setup>
 import {ref, computed, onMounted, inject} from 'vue';
 import router from "../router/index.js";
-// Angenommen, deine Collection-Service bietet eine fetchCollections()-Methode
+
 import {fetchCollections} from "../services/CollectionService.js";
 
-// Hole das aktuelle Theme (z. B. "light" oder "dark")
 const theme = inject('theme');
 
-// Reaktive Liste der Paletten/Collections
 const collections = ref([]);
 const loadCollections = async () => {
   try {
@@ -56,17 +54,14 @@ const loadCollections = async () => {
   }
 };
 
-// Computed-Property für die zuletzt erstellte Palette
 const lastPalette = computed(() => {
   if (collections.value.length > 0) {
-    // Sortiere Sammlungen anhand eines Attributs, z.B. lastModified
     const sortedCollections = [...collections.value].sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
-    return sortedCollections[0]; // Letzte bearbeitete Palette
+    return sortedCollections[0];
   }
   return null;
 });
 
-// Navigation
 const goToColourPicker = () => {
   router.push('/colourpicker');
 };
@@ -102,7 +97,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-
 }
 
 .inhalt {

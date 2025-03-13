@@ -36,7 +36,7 @@
         <h3>Add selected colour to a collection</h3>
         <!-- Color preview and current hex code -->
         <div class="color-preview">
-          Selected colour:
+          <span >Selected colour:</span>
           <div class="color-box" :style="{ backgroundColor: savedColor }"></div>
           <div class="color-text">{{ savedHexColor }}</div>
         </div>
@@ -87,6 +87,7 @@
 import {inject, onBeforeUnmount, onMounted, ref} from 'vue';
 import {addColor, createCollection, fetchCollections} from '../services/CollectionService.js';
 import CreateCollectionModal from "./CreateCollectionModal.vue";
+import CollectionDetail from "./CollectionDetail.vue";
 
 const video = ref(null);
 const canvas = ref(null);
@@ -246,6 +247,7 @@ const addColour = async (collectionId) => {
   overflow: hidden;
   max-width: 800px;
   margin: auto;
+  height: calc(100vh - 180px);
 }
 
 video {
@@ -270,7 +272,6 @@ canvas {
 .color-display-box {
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 10px;
   border-radius: 12px;
   border: 1px solid #ddd;
@@ -288,8 +289,12 @@ canvas {
 }
 
 .color-box {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
+}
+
+.collection-body {
+  border-radius: 8px;
 }
 
 .color-text {
@@ -315,13 +320,14 @@ canvas {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 20px);
+  width: calc(100% - 15px);
 }
 
 .add-colour-button {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
+  height:72px
 }
 
 .modal-overlay {
@@ -376,7 +382,6 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -410,8 +415,7 @@ canvas {
 
 .collection-body {
   display: flex;
-  border-radius: 8px;
-  overflow: hidden; /* So werden die Kinder an den runden Ecken beschnitten */
+  overflow: hidden;
 }
 
 .collection-body .color-box {
@@ -419,14 +423,6 @@ canvas {
   height: 40px;
 }
 
-
-.collection-body .color-box.empty-box {
-  flex: 1;
-  height: 40px;
-  border: 1px solid grey;
-  border-radius: 8px;
-  background-color: transparent;
-}
 
 .collection-list::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
