@@ -69,22 +69,28 @@
         </div>
         <div class="modal-footer modal-buttons">
           <button class="btn btn-secondary mdi mdi-close" @click="closeCollectionModal">Cancel</button>
-          <!-- TODO -->
-          <button class="btn btn-primary mdi mdi-plus" @click="closeCollectionModal">New Collection</button>
+          <button class="btn btn-primary mdi mdi-plus" @click="openModal">New Collection</button>
         </div>
       </div>
     </div>
 
-
+    <CreateCollectionModal
+        :isOpen="isModalOpen"
+        :theme="theme"
+        @close="closeCollectionModal"
+        @submit="createNewCollection"
+    />
   </div>
 </template>
 
 <script setup>
 import {inject, onBeforeUnmount, onMounted, ref} from 'vue';
-import {addColor, fetchCollections} from '../services/CollectionService.js';
+import {addColor, createCollection, fetchCollections} from '../services/CollectionService.js';
+import CreateCollectionModal from "./CreateCollectionModal.vue";
 
 const video = ref(null);
 const canvas = ref(null);
+const isModalOpen = ref(false);
 
 const color = ref('rgb(0,0,0)');
 const hexColor = ref('#000000');
@@ -156,7 +162,10 @@ onBeforeUnmount(() => {
 
 const loadCollections = async () => {
   try {
-    collections.value = await fetchCollections();
+    const fetchedCollections = await fetchCollections();
+    collections.value = fetchedCollections.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
   } catch (error) {
     console.error('Error loading collections:', error);
   }
@@ -176,14 +185,39 @@ const closeCollectionModal = () => {
   isCollectionModalOpen.value = false;
 };
 
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const createNewCollection = async (collectionName) => {
+  await createCollection(collectionName, []);
+  await loadCollections();
+  closeModal();
+}
+
 const addColour = async (collectionId) => {
   try {
     await addColor(collectionId, savedHexColor.value);
-    closeCollectionModal()
+    // Lokale Aktualisierung: Finde die Collection und füge die Farbe hinzu
+    const targetCollection = collections.value.find(
+        (collection) => collection.id === collectionId
+    );
+    if (targetCollection) {
+      // Falls colors noch nicht existieren, initialisiere sie
+      targetCollection.colors = targetCollection.colors || [];
+      targetCollection.colors.push(savedHexColor.value);
+    }
+    closeCollectionModal();
   } catch (error) {
     console.error('Error adding color to collection:', error);
   }
 };
+
 </script>
 
 <style scoped>
@@ -208,7 +242,7 @@ const addColour = async (collectionId) => {
   position: relative;
   display: flex;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   max-width: 800px;
   margin: auto;
@@ -256,7 +290,6 @@ canvas {
 .color-box {
   width: 40px;
   height: 40px;
-  border-radius: 5px;
 }
 
 .color-text {
@@ -288,7 +321,7 @@ canvas {
 .add-colour-button {
   width: 100%;
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .modal-overlay {
@@ -350,7 +383,7 @@ canvas {
 .color-preview .color-box {
   width: 40px;
   height: 40px;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 
 .collection-list {
@@ -377,8 +410,8 @@ canvas {
 
 .collection-body {
   display: flex;
-  width: 100%;
-  gap: 5px;
+  border-radius: 8px;
+  overflow: hidden; /* So werden die Kinder an den runden Ecken beschnitten */
 }
 
 .collection-body .color-box {
@@ -391,6 +424,7 @@ canvas {
   flex: 1;
   height: 40px;
   border: 1px solid grey;
+  border-radius: 8px;
   background-color: transparent;
 }
 

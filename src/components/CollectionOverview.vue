@@ -111,6 +111,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding-bottom: 80px;
 }
 
 .collection-card {
@@ -130,6 +131,7 @@ onMounted(() => {
 .collection-body {
   display: flex;
   border-radius: 8px;
+  overflow: hidden; /* So werden die Kinder an den runden Ecken beschnitten */
 }
 
 .color-box {
@@ -142,4 +144,5 @@ onMounted(() => {
   border-radius: 8px;
   background-color: transparent;
 }
+
 </style>
