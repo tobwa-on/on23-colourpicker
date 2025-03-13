@@ -5,7 +5,7 @@
       <form @submit.prevent="handleSubmit">
         <div class="modal-body">
           <input
-              v-model="newPaletteName"
+              v-model="newCollectionName"
               type="text"
               class="form-control"
               placeholder="Enter new collection name."
@@ -46,13 +46,13 @@ const props = defineProps({
 const emits = defineEmits(['close', 'submit']);
 
 // Initialer Wert entspricht dem übergebenen collectionName
-const newPaletteName = ref(props.collectionName);
+const newCollectionName = ref(props.collectionName);
 
 // Aktualisiere den internen Wert, falls sich der Prop geändert hat
 watch(
     () => props.collectionName,
     (newVal) => {
-      newPaletteName.value = newVal;
+      newCollectionName.value = newVal;
     }
 );
 
@@ -62,7 +62,7 @@ const handleClose = () => {
 
 const handleSubmit = () => {
   // Hier wird der Wert aus dem Input zurückgegeben
-  emits('submit', newPaletteName.value);
+  emits('submit', newCollectionName.value);
 };
 </script>
 

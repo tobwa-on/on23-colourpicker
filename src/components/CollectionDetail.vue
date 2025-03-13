@@ -1,12 +1,12 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <router-link to="/palettes">
+      <router-link to="/collection">
         <button class="btn btn-lg mdi mdi-arrow-left m-0 p-0"></button>
       </router-link>
 
       <!-- Titel in der Mitte -->
-      <h1 v-if="palette" class="title m-0">{{ palette.name }}</h1>
+      <h1 v-if="collection" class="title m-0">{{ collection.name }}</h1>
 
       <div class="button-container">
         <!-- Dropdown für Farbhinzufügen -->
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Dropdown für weitere Einstellungen (Rename, Download, Delete) -->
-        <div v-if="palette" class="dropdown">
+        <div v-if="collection" class="dropdown">
           <button
               class="btn btn-lg"
               type="button"
@@ -55,12 +55,12 @@
               </a>
             </li>
             <li>
-              <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette">
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollection">
                 Download
               </a>
             </li>
             <li>
-              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette">
+              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeleteCollection">
                 Delete
               </a>
             </li>
@@ -69,10 +69,10 @@
       </div>
     </div>
 
-    <div v-if="palette">
+    <div v-if="collection">
       <div class="d-block">
         <div
-            v-for="(color, idx) in palette.colors"
+            v-for="(color, idx) in collection.colors"
             :key="idx"
             class="color-box mb-3"
         >
@@ -94,7 +94,7 @@
     <RenameCollectionModal
         :isOpen="isRenameModalOpen"
         :theme="theme"
-        :collectionName="palette ? palette.name : ''"
+        :collectionName="collection ? collection.name : ''"
         @close="closeRenameModal"
         @submit="handleSubmitRename"
     />
@@ -115,20 +115,20 @@ import {useRoute, useRouter} from 'vue-router';
 import {
   addColor,
   deleteColor,
-  deletePalette,
-  fetchPaletteById,
+  deleteCollection,
+  fetchCollectionById,
   updateColor,
-  updatePaletteName,
+  updateCollectionName,
   getIntelligentColor,
   generateRandomColor,
-  downloadPaletteAsImage
-} from '../services/Palettes.js';
+  downloadCollectionAsImage
+} from '../services/CollectionService.js';
 import EditColourModal from "./EditColourModal.vue";
 import RenameCollectionModal from "./RenameCollectionModal.vue";
 
 const theme = inject('theme');
-const palette = ref(null);
-const paletteName = ref('');
+const collection = ref(null);
+const collectionName = ref('');
 const router = useRouter();
 const route = useRoute();
 const isRenameModalOpen = ref(false);
@@ -137,13 +137,12 @@ const colorModalMode = ref('add');
 const currentColor = ref('#000000');
 const editColorIndex = ref(null);
 
-// Laden der Palette
-const loadPalette = async () => {
+const loadCollections = async () => {
   try {
-    palette.value = await fetchPaletteById(route.params.id);
-    paletteName.value = palette.value.name;
+    collection.value = await fetchCollectionById(route.params.id);
+    collectionName.value = collection.value.name;
   } catch (error) {
-    console.error('Error loading palette details:', error);
+    console.error('Error loading collection details:', error);
   }
 };
 
@@ -158,7 +157,7 @@ const openColourModal = () => {
 const openEditColorModal = (idx) => {
   colorModalMode.value = 'edit';
   editColorIndex.value = idx;
-  currentColor.value = palette.value.colors[idx];
+  currentColor.value = collection.value.colors[idx];
   isColourModalOpen.value = true;
 };
 
@@ -171,17 +170,17 @@ const closeColourModal = () => {
 
 const handleSubmitColor = async (newColor) => {
   if (colorModalMode.value === 'edit' && editColorIndex.value !== null) {
-    const oldColor = palette.value.colors[editColorIndex.value];
+    const oldColor = collection.value.colors[editColorIndex.value];
     try {
-      await updateColor(palette.value.id, oldColor, newColor);
-      palette.value.colors[editColorIndex.value] = newColor;
+      await updateColor(collection.value.id, oldColor, newColor);
+      collection.value.colors[editColorIndex.value] = newColor;
     } catch (error) {
       console.error('Error updating color:', error);
     }
   } else {
     try {
-      await addColor(palette.value.id, newColor);
-      palette.value.colors.push(newColor);
+      await addColor(collection.value.id, newColor);
+      collection.value.colors.push(newColor);
     } catch (error) {
       console.error('Error adding color:', error);
     }
@@ -198,31 +197,31 @@ const handleEditName = () => {
 };
 
 const handleSubmitRename = async (newName) => {
-  if (newName && newName !== palette.value.name) {
+  if (newName && newName !== collection.value.name) {
     try {
-      await updatePaletteName(palette.value.id, newName);
-      palette.value.name = newName;
+      await updateCollectionName(collection.value.id, newName);
+      collection.value.name = newName;
     } catch (error) {
-      console.error('Error updating palette name:', error);
+      console.error('Error updating collection name:', error);
     }
   }
   isRenameModalOpen.value = false;
 };
 
-const handleDeletePalette = async () => {
+const handleDeleteCollection = async () => {
   try {
-    await deletePalette(palette.value.id);
-    await router.push({name: 'Palette'});
+    await deleteCollection(collection.value.id);
+    await router.push({name: 'Collection'});
   } catch (error) {
-    console.error('Error deleting palette:', error);
+    console.error('Error deleting collection:', error);
   }
 };
 
 const handleDeleteColor = async (idx) => {
   try {
-    const colorToDelete = palette.value.colors[idx];
-    await deleteColor(palette.value.id, colorToDelete);
-    palette.value.colors.splice(idx, 1);
+    const colorToDelete = collection.value.colors[idx];
+    await deleteColor(collection.value.id, colorToDelete);
+    collection.value.colors.splice(idx, 1);
   } catch (error) {
     console.error('Error deleting color:', error);
   }
@@ -231,8 +230,8 @@ const handleDeleteColor = async (idx) => {
 const handleAddRandomColor = async () => {
   try {
     const randomColor = generateRandomColor();
-    palette.value.colors.push(randomColor);
-    await addColor(palette.value.id, randomColor);
+    collection.value.colors.push(randomColor);
+    await addColor(collection.value.id, randomColor);
   } catch (error) {
     console.error('Error adding random color:', error);
   }
@@ -240,22 +239,22 @@ const handleAddRandomColor = async () => {
 
 const addIntelligentColorHandler = async () => {
   try {
-    const intelligentColor = await getIntelligentColor(palette.value.colors);
-    await addColor(palette.value.id, intelligentColor);
-    palette.value.colors.push(intelligentColor);
+    const intelligentColor = await getIntelligentColor(collection.value.colors);
+    await addColor(collection.value.id, intelligentColor);
+    collection.value.colors.push(intelligentColor);
   } catch (error) {
     console.error('Error adding intelligent color:', error);
   }
 };
 
-const handleDownloadPalette = async () => {
-  if (palette.value) {
-    await downloadPaletteAsImage(palette.value);
+const handleDownloadCollection = async () => {
+  if (collection.value) {
+    await downloadCollectionAsImage(collection.value);
   }
 };
 
 onMounted(() => {
-  loadPalette();
+  loadCollections();
 });
 </script>
 
@@ -284,7 +283,6 @@ onMounted(() => {
   gap: 10px;
 }
 
-/* ANZEIGE PALETTE */
 .color-box {
   position: relative;
   border-radius: 8px;

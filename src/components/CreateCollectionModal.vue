@@ -5,9 +5,9 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <input
-              v-model="paletteName"
+              v-model="collectionName"
               type="text"
-              id="paletteName"
+              id="collectionName"
               required
               placeholder="Enter collection name"
           />
@@ -37,17 +37,17 @@ const props = defineProps({
 
 const emits = defineEmits(['close', 'submit']);
 
-const paletteName = ref('');
+const collectionName = ref('');
 
 const handleClose = () => {
-  paletteName.value = '';
+  collectionName.value = '';
   emits('close');
 };
 
 const handleSubmit = () => {
-  if (paletteName.value.trim() !== '') {
-    emits('submit', paletteName.value.trim());
-    paletteName.value = '';
+  if (collectionName.value.trim() !== '') {
+    emits('submit', collectionName.value.trim());
+    collectionName.value = '';
   }
 };
 </script>

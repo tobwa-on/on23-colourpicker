@@ -5,27 +5,25 @@
       <button class="btn add-btn mdi mdi-plus btn-lg" @click="openModal"></button>
     </div>
 
-    <div class="palettes-container">
+    <div class="collection-container">
       <div
-          v-for="(palette, index) in palettes"
-          :key="palette.id || index"
-          class="palette-card"
-          @click="goToPaletteDetail(palette.id || index)"
+          v-for="(collection, index) in collections"
+          :key="collection.id || index"
+          class="collection-card"
+          @click="goToCollectionDetail(collection.id || index)"
       >
-        <div class="palette-header">
-          <h5>{{ palette.name }}</h5>
+        <div class="collection-header">
+          <h5>{{ collection.name }}</h5>
         </div>
-        <div class="palette-body">
-          <!-- Wenn die Palette Farben enthält -->
-          <template v-if="palette.colors && palette.colors.length > 0">
+        <div class="collection-body">
+          <template v-if="collection.colors && collection.colors.length > 0">
             <div
-                v-for="(color, idx) in palette.colors"
+                v-for="(color, idx) in collection.colors"
                 :key="idx"
                 class="color-box"
                 :style="{ backgroundColor: color }"
             ></div>
           </template>
-          <!-- Wenn die Palette leer ist -->
           <template v-else>
             <div class="color-box empty-box"></div>
           </template>
@@ -33,35 +31,33 @@
       </div>
     </div>
 
-    <!-- Integration der ausgelagerten NewPaletteModal-Komponente -->
-    <CreatePaletteModal
+    <CreateCollectionModal
         :isOpen="isModalOpen"
         :theme="theme"
         @close="closeModal"
-        @submit="handleSubmitNewPalette"
+        @submit="handleSubmitNewCollection"
     />
   </div>
 </template>
 <script setup>
 import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchPalettes, createPalette } from '../services/Palettes.js';
-import CreatePaletteModal from './CreatePaletteModal.vue';
+import { fetchCollections, createCollection } from '../services/CollectionService.js';
+import CreateCollectionModal from "./CreateCollectionModal.vue";
 
 const theme = inject('theme');
-const palettes = ref([]);
+const collections = ref([]);
 const router = useRouter();
 const isModalOpen = ref(false);
 
-const loadPalettes = async () => {
+const loadCollections = async () => {
   try {
-    const fetchedPalettes = await fetchPalettes();
-    // Alphabetisch sortieren nach dem Palettennamen
-    palettes.value = fetchedPalettes.sort((a, b) =>
+    const fetchedCollections = await fetchCollections();
+    collections.value = fetchedCollections.sort((a, b) =>
         a.name.localeCompare(b.name)
     );
   } catch (error) {
-    console.error('Error loading palettes:', error);
+    console.error('Error loading collections:', error);
   }
 };
 
@@ -73,20 +69,20 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const handleSubmitNewPalette = async (paletteName) => {
-  if (paletteName) {
-    await createPalette(paletteName, []); // Neue Palette ohne Farben erstellen
-    await loadPalettes();
+const handleSubmitNewCollection = async (collectionName) => {
+  if (collectionName) {
+    await createCollection(collectionName, []);
+    await loadCollections();
     closeModal();
   }
 };
 
-const goToPaletteDetail = (paletteId) => {
-  router.push({ name: 'Palette Details', params: { id: paletteId } });
+const goToCollectionDetail = (collectionId) => {
+  router.push({ name: 'Palette Details', params: { id: collectionId } });
 };
 
 onMounted(() => {
-  loadPalettes();
+  loadCollections();
 });
 
 </script>
@@ -111,27 +107,27 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.palettes-container {
+.collection-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.palette-card {
+.collection-card {
   overflow: hidden;
   cursor: pointer;
 }
 
-.palette-header {
+.collection-header {
   padding: 10px;
 }
 
-.palette-header h5 {
+.collection-header h5 {
   margin: 0;
   font-size: 1.1rem;
 }
 
-.palette-body {
+.collection-body {
   display: flex;
   border-radius: 8px;
 }

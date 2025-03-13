@@ -2,7 +2,7 @@
   <nav :class="['navbar fixed-bottom', theme === 'dark' ? 'bg-dark' : 'bg-light']">
     <div class="container-fluid d-flex justify-content-around">
 
-      <router-link to="/palettes" class="nav-item nav-link">
+      <router-link to="/collections" class="nav-item nav-link">
         <i class="mdi mdi-palette"></i> Colors
       </router-link>
 
