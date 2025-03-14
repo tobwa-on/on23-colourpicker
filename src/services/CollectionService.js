@@ -260,6 +260,17 @@ export const downloadCollectionAsImage = async (collection) => {
     }
 };
 
+export const downloadCollectionAsJson = async (collection) => {
+    const jsonData = {
+        name: collection.name,
+        colors: collection.colors
+    };
+
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+
+    saveAs(blob, `${collection.name}.json`);
+};
+
 const hexToRgb = (hex) => {
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 16) & 255;
