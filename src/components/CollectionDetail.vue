@@ -51,7 +51,12 @@
             </li>
             <li>
               <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollection">
-                Download
+                Download .png
+              </a>
+            </li>
+            <li>
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollectionJson">
+                Download .json
               </a>
             </li>
             <li>
@@ -118,7 +123,8 @@ import {
   updateCollectionName,
   getIntelligentColor,
   generateRandomColor,
-  downloadCollectionAsImage
+  downloadCollectionAsImage,
+  downloadCollectionAsJson
 } from '../services/CollectionService.js';
 import EditColourModal from "./EditColourModal.vue";
 import RenameCollectionModal from "./CollectionRenameModal.vue";
@@ -247,6 +253,12 @@ const addIntelligentColorHandler = async () => {
 const handleDownloadCollection = async () => {
   if (collection.value) {
     await downloadCollectionAsImage(collection.value);
+  }
+};
+
+const handleDownloadCollectionJson = async () => {
+  if (collection.value) {
+    await downloadCollectionAsJson(collection.value);
   }
 };
 
