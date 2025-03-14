@@ -312,7 +312,6 @@ onMounted(() => {
 }
 
 .add-btn {
-  color: white;
   border-radius: 50%;
   font-size: 1.7rem;
   cursor:pointer;
