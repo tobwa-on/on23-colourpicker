@@ -1,5 +1,5 @@
 <template>
-  <div class="auth-container">
+  <div :class="['auth-container', theme]">
     <div class="card shadow-sm p-4">
       <h2 class="text-center mb-4">Register</h2>
       <form @submit.prevent="register">
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from 'vue';
+import { ref, getCurrentInstance, inject } from 'vue';
 import { registerUser } from '../../firebase';
 import { useRouter } from 'vue-router';
 
@@ -36,6 +36,7 @@ const confirmPassword = ref('');
 const error = ref('');
 const router = useRouter();
 const { proxy } = getCurrentInstance();
+const theme = inject('theme');
 
 const register = async () => {
   error.value = "";
@@ -92,8 +93,15 @@ const isValidPassword = (password) => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f8f9fa;
   padding: 20px;
+}
+
+.auth-container.light {
+  background: #ffffff;
+}
+
+.auth-container.dark {
+  background:  #212529;
 }
 
 .card {
