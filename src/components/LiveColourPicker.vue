@@ -205,7 +205,7 @@ const createNewCollection = async (collectionName) => {
 
 const addColour = async (collectionId) => {
   try {
-    await addColor(collectionId, savedHexColor.value);
+    await addColor(collectionId, savedHexColor.value, proxy.$showToastMessage);
 
     const targetCollection = collections.value.find(
         (collection) => collection.id === collectionId
@@ -216,10 +216,8 @@ const addColour = async (collectionId) => {
       targetCollection.colors.push(savedHexColor.value);
     }
     closeCollectionModal();
-    proxy.$showToastMessage('success', 'Color added to collection successfully!'); // Show success toast
   } catch (error) {
     console.error('Error adding color to collection:', error);
-    proxy.$showToastMessage('error', 'Failed to add color to collection.'); // Show error toast
   }
 };
 

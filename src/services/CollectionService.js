@@ -60,12 +60,17 @@ export const createCollection = async (collectionName, colors, showToast) => {
     if (user) {
         try {
             const collectionRef = collection(db, 'users', user.uid, 'palettes');
-            await addDoc(collectionRef, {
-                name: collectionName,
-                colors: colors,
-                last_modified: serverTimestamp()
-            });
-            if (showToast) showToast('success', 'Collection created successfully!');
+            const snapshot = await getDocs(collectionRef);
+            if (snapshot.docs.length >= 30) {
+                if (showToast) showToast('error', 'Maximum number of collections reached');
+            }else{
+                await addDoc(collectionRef, {
+                    name: collectionName,
+                    colors: colors,
+                    last_modified: serverTimestamp()
+                });
+                if (showToast) showToast('success', 'Collection created successfully!');
+            }
         } catch (error) {
             if (showToast) showToast('error', 'Collection could not be created!');
             throw error;
@@ -189,13 +194,18 @@ export const addColor = async (collectionId, newColor, showToast) => {
 
         try {
             const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
+            const docSnap = await getDoc(collectionRef);
+            if (docSnap.exists() && docSnap.data().colors.length >= 30) {
+                if (showToast) showToast('error', 'Maximum number of colors reached');
+            }else{
+                await updateDoc(collectionRef, {
+                    colors: arrayUnion(newColor),
+                    last_modified: serverTimestamp()
+                });
+    
+                if (showToast) showToast('success', 'Color successfully added!');
+            }
 
-            await updateDoc(collectionRef, {
-                colors: arrayUnion(newColor),
-                last_modified: serverTimestamp()
-            });
-
-            if (showToast) showToast('success', 'Color successfully added!');
         } catch (error) {
             if (showToast) showToast('error', 'Color could not be added.');
             throw error;
