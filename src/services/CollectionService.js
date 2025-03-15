@@ -8,7 +8,10 @@ import {
     getDoc,
     updateDoc,
     arrayRemove,
-    arrayUnion
+    arrayUnion,
+    serverTimestamp,
+    query,
+    orderBy
 } from 'firebase/firestore';
 import { saveAs } from 'file-saver';
 
@@ -18,7 +21,8 @@ export const fetchCollections = () => {
             if (user) {
                 try {
                     const collectionRef = collection(db, 'users', user.uid, 'palettes');
-                    const snapshot = await getDocs(collectionRef);
+                    const q = query(collectionRef, orderBy('last_modified', 'desc'));
+                    const snapshot = await getDocs(q);
                     const collections = snapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data(),
@@ -45,6 +49,7 @@ export const createCollection = async (collectionName, colors) => {
             await addDoc(collectionRef, {
                 name: collectionName,
                 colors: colors,
+                last_modified: serverTimestamp()
             });
 
             console.log('Collection successfully created!');
@@ -110,6 +115,7 @@ export const deleteColor = async (collectionId, colorToDelete) => {
 
             await updateDoc(collectionRef, {
                 colors: arrayRemove(colorToDelete),
+                last_modified: serverTimestamp()
             });
 
             console.log('Color successfully deleted!');
@@ -132,10 +138,12 @@ export const updateColor = async (collectionId, oldColor, newColor) => {
 
             await updateDoc(collectionRef, {
                 colors: arrayRemove(oldColor),
+                last_modified: serverTimestamp()
             });
 
             await updateDoc(collectionRef, {
                 colors: arrayUnion(newColor),
+                last_modified: serverTimestamp()
             });
 
             console.log('Color successfully updated!');
@@ -175,6 +183,7 @@ export const addColor = async (collectionId, newColor) => {
 
             await updateDoc(collectionRef, {
                 colors: arrayUnion(newColor),
+                last_modified: serverTimestamp()
             });
 
             console.log('Color successfully added!');
@@ -205,6 +214,7 @@ export const updateCollectionName = async (collectionId, newName) => {
             const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
             await updateDoc(collectionRef, {
                 name: newName,
+                last_modified: serverTimestamp()
             });
 
             console.log('Collection name successfully updated!');
