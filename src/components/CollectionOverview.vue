@@ -43,7 +43,7 @@
   </div>
 </template>
 <script setup>
-import { ref, inject, onMounted } from 'vue';
+import { ref, inject, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchCollections, createCollection } from '../services/CollectionService.js';
 import CreateCollectionModal from "./CreateCollectionModal.vue";
@@ -52,15 +52,16 @@ const theme = inject('theme');
 const collections = ref([]);
 const router = useRouter();
 const isModalOpen = ref(false);
+const { proxy } = getCurrentInstance();
 
 const loadCollections = async () => {
   try {
-    const fetchedCollections = await fetchCollections();
+    const fetchedCollections = await fetchCollections(proxy.$showToastMessage);
     collections.value = fetchedCollections.sort((a, b) =>
         a.name.localeCompare(b.name)
     );
   } catch (error) {
-    console.error('Error loading collections:', error);
+    // Error handling is already done in the service
   }
 };
 
@@ -74,7 +75,7 @@ const closeModal = () => {
 
 const handleSubmitNewCollection = async (collectionName) => {
   if (collectionName) {
-    await createCollection(collectionName, []);
+    await createCollection(collectionName, [], proxy.$showToastMessage);
     await loadCollections();
     closeModal();
   }

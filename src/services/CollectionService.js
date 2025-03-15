@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { saveAs } from 'file-saver';
 
-export const fetchCollections = () => {
+export const fetchCollections = async (showToast) => {
     return new Promise((resolve, reject) => {
         observeAuthState(async (user) => {
             if (user) {
@@ -29,18 +29,18 @@ export const fetchCollections = () => {
                     }));
                     resolve(collections);
                 } catch (error) {
-                    console.error('Error fetching collections: ', error);
+                    if (showToast) showToast('error', 'Collections could not be loaded!');
                     reject(error);
                 }
             } else {
-                console.error('User is not authenticated');
+                if (showToast) showToast('error', 'User is not authenticated');
                 reject(new Error('User is not authenticated'));
             }
         });
     });
 };
 
-export const createCollection = async (collectionName, colors) => {
+export const createCollection = async (collectionName, colors, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -51,37 +51,36 @@ export const createCollection = async (collectionName, colors) => {
                 colors: colors,
                 last_modified: serverTimestamp()
             });
-
-            console.log('Collection successfully created!');
+            if (showToast) showToast('success', 'Collection created successfully!');
         } catch (error) {
-            console.error('Error creating Collection: ', error);
+            if (showToast) showToast('error', 'Collection could not be created!');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
 
-export const deleteCollection = async (collectionId) => {
+export const deleteCollection = async (collectionId, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
             const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
             await deleteDoc(collectionRef);
-            console.log('Collection successfully deleted!');
+            if (showToast) showToast('success', 'Collection successfully deleted!');
         } catch (error) {
-            console.error('Error deleting collection: ', error);
+            if (showToast) showToast('error', 'Collection could not be deleted');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
 
-export const fetchCollectionById = async (id) => {
+export const fetchCollectionById = async (id, showToast) => {
     return new Promise((resolve, reject) => {
         observeAuthState(async (user) => {
             if (user) {
@@ -92,21 +91,22 @@ export const fetchCollectionById = async (id) => {
                     if (docSnap.exists()) {
                         resolve({id: docSnap.id, ...docSnap.data()});
                     } else {
+                        if (showToast) showToast('error', 'Error fetching collection by ID');
                         reject(new Error('Collection not found'));
                     }
                 } catch (error) {
-                    console.error('Error fetching collection by ID: ', error);
+                    if (showToast) showToast('error', 'Error fetching collection by ID');
                     reject(error);
                 }
             } else {
-                console.error('User is not authenticated');
+                if (showToast) showToast('error', 'User is not authenticated');
                 reject(new Error('User is not authenticated'));
             }
         });
     });
 };
 
-export const deleteColor = async (collectionId, colorToDelete) => {
+export const deleteColor = async (collectionId, colorToDelete, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -118,18 +118,18 @@ export const deleteColor = async (collectionId, colorToDelete) => {
                 last_modified: serverTimestamp()
             });
 
-            console.log('Color successfully deleted!');
+            if (showToast) showToast('success', 'Color successfully deleted!');
         } catch (error) {
-            console.error('Error deleting color: ', error);
+            if (showToast) showToast('error', 'Color could not be deleted.');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
 
-export const updateColor = async (collectionId, oldColor, newColor) => {
+export const updateColor = async (collectionId, oldColor, newColor, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -146,13 +146,13 @@ export const updateColor = async (collectionId, oldColor, newColor) => {
                 last_modified: serverTimestamp()
             });
 
-            console.log('Color successfully updated!');
+            if (showToast) showToast('success', 'Color successfully updated!');
         } catch (error) {
-            console.error('Error updating color: ', error);
+            if (showToast) showToast('error', 'Color could not be updated.');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
@@ -169,11 +169,10 @@ export const getIntelligentColor = async (colors) => {
     }
 };
 
-export const addColor = async (collectionId, newColor) => {
+export const addColor = async (collectionId, newColor, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
-        console.log(typeof newColor !== 'string');
         if (!newColor || typeof newColor !== 'string' || !/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(newColor)) {
             throw new Error('Invalid color format');
         }
@@ -186,13 +185,13 @@ export const addColor = async (collectionId, newColor) => {
                 last_modified: serverTimestamp()
             });
 
-            console.log('Color successfully added!');
+            if (showToast) showToast('success', 'Color successfully added!');
         } catch (error) {
-            console.error('Error adding color:', error);
+            if (showToast) showToast('error', 'Color could not be added.');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
@@ -206,7 +205,7 @@ export function generateRandomColor() {
     return color;
 }
 
-export const updateCollectionName = async (collectionId, newName) => {
+export const updateCollectionName = async (collectionId, newName, showToast) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -217,13 +216,13 @@ export const updateCollectionName = async (collectionId, newName) => {
                 last_modified: serverTimestamp()
             });
 
-            console.log('Collection name successfully updated!');
+            if (showToast) showToast('success', 'Collection name successfully updated!');
         } catch (error) {
-            console.error('Error updating collection name: ', error);
+            if (showToast) showToast('error', 'Collection name could not be updated.');
             throw error;
         }
     } else {
-        console.error('User is not authenticated');
+        if (showToast) showToast('error', 'User is not authenticated');
         throw new Error('User is not authenticated');
     }
 };
