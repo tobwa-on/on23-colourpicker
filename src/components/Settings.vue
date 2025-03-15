@@ -44,13 +44,21 @@
           <i class="icon-large mdi mdi-lock-reset"></i>
         </div>
 
+        <div
+          :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode']"
+          @click="openDeleteAccountModal"
+        >
+          <span class="option-text">Delete Account</span>
+          <i class="icon-large mdi mdi-delete"></i>
+        </div>
+
         <!-- Logout-Sektion -->
         <div
           :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode', 'bg-danger']"
           @click="logout"
         >
           <span class="option-text text-white">Logout</span>
-          <i class="mdi mdi-logout text-white"></i>
+          <i class="icon-large mdi mdi-logout text-white"></i>
         </div>
 
         <!-- Footer -->
@@ -64,6 +72,13 @@
             <h3 class="modal-title">Change Password</h3>
             <form @submit.prevent="handleSubmit">
               <div class="modal-body">
+                <input
+                  v-model="currentPassword"
+                  type="password"
+                  class="form-control"
+                  placeholder="Enter current password"
+                  required
+                />
                 <div class="mb-3">
                   <input
                     v-model="newPassword"
@@ -84,7 +99,7 @@
                 </div>
               </div>
               <div class="modal-footer modal-buttons mt-3">
-                <button type="button" class="btn btn-secondary mdi mdi-close" @click="showModal = false">
+                <button type="button" class="btn btn-secondary mdi mdi-close" @click="closePasswordModal">
                   Cancel
                 </button>
                 <button type="submit" class="btn btn-primary mdi mdi-check">
@@ -127,24 +142,59 @@
           </div>
         </div>
 
+        <!-- Delete Account Modal -->
+        <div v-if="showDeleteAccountModal" class="modal-overlay">
+          <div class="modal-content" :class="theme">
+            <h3 class="modal-title">Confirm Account Deletion</h3>
+            <form @submit.prevent="handleDeleteAccount">
+              <div class="modal-body">
+                <input
+                  v-model="password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              <div class="modal-footer modal-buttons mt-3">
+                <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeDeleteAccountModal">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-danger mdi mdi-delete">
+                  Delete
+                </button>
+              </div>
+            </form>
+            <div v-if="deleteErrorMessage" class="text-danger">
+              <p>{{ deleteErrorMessage }}</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
-import { getAuth, signOut, updatePassword } from 'firebase/auth';
+import { ref, inject, getCurrentInstance } from 'vue';
+import { getAuth, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from 'firebase/auth';
+import { isLoggingOut } from '../services/CollectionService.js'; // Import the flag
 
 const auth = getAuth();
 const theme = inject('theme');
 const toggleTheme = inject('toggleTheme');
 
 const showModal = ref(false);
+const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const isPasswordChanged = ref(false);
 const errorMessage = ref('');
+
+const showDeleteAccountModal = ref(false);
+const password = ref('');
+const deleteErrorMessage = ref('');
 
 // Füge showGuideModal hinzu
 const showGuideModal = ref(false);
@@ -154,9 +204,22 @@ const changePassword = async () => {
   showModal.value = true;
 };
 
+const closePasswordModal = () => {
+  showModal.value = false;
+  currentPassword.value = '';
+  newPassword.value = '';
+  confirmPassword.value = '';
+  errorMessage.value = '';
+};
+
 const handleSubmit = async () => {
   if (newPassword.value !== confirmPassword.value) {
     errorMessage.value = "Passwords do not match!";
+    return;
+  }
+
+  if (!isValidPassword(newPassword.value)) {
+    errorMessage.value = "The password must be at least 8 characters long and contain a number, a special character, and upper and lower case letters.";
     return;
   }
 
@@ -167,37 +230,87 @@ const handleSubmit = async () => {
     return;
   }
 
+  const credential = EmailAuthProvider.credential(user.email, currentPassword.value);
+
   try {
+    await reauthenticateWithCredential(user, credential);
     await updatePassword(user, newPassword.value);
     isPasswordChanged.value = true; // Zeige Erfolgsmeldung
+    proxy.$showToastMessage('success', 'Password successfully changed');
     setTimeout(() => {
       isPasswordChanged.value = false; // Setze Erfolgsmeldung zurück
-      showModal.value = false; // Schließe das Modal nach 2 Sekunden
-    }, 2000); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
+      closePasswordModal(); // Schließe das Modal und leere die Eingabefelder
+    }, 1500); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
   } catch (error) {
     console.error("Error updating password:", error);
-    errorMessage.value = error.message || "An error occurred while updating the password.";
+    errorMessage.value = "The current password you submitted is wrong. Please try again.";
   }
 };
 
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  return regex.test(password);
+};
+
+const { proxy } = getCurrentInstance();
+
 const logout = async () => {
+  if (!auth.currentUser) {
+    proxy.$showToastMessage('error', 'User is already logged out');
+    return;
+  }
+
   try {
+    isLoggingOut.value = true; // Set the flag to true
     await signOut(auth);
-    console.log('Logged out successfully');
+    proxy.$showToastMessage('success', 'Logged out successfully');
   } catch (error) {
+    proxy.$showToastMessage('error', 'Error during logout');
     console.error('Error during logout:', error);
+  } finally {
+    isLoggingOut.value = false; // Reset the flag
   }
 };
 
 // Öffnet das Guide Modal
 const openGuide = () => {
-  console.log("success guide");
   showGuideModal.value = true;
 };
 
 // Schließt das Guide Modal
 const closeGuideModal = () => {
   showGuideModal.value = false;
+};
+
+const openDeleteAccountModal = () => {
+  showDeleteAccountModal.value = true;
+};
+
+const closeDeleteAccountModal = () => {
+  showDeleteAccountModal.value = false;
+  password.value = '';
+  deleteErrorMessage.value = '';
+};
+
+const handleDeleteAccount = async () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    deleteErrorMessage.value = "You need to be logged in to delete your account.";
+    return;
+  }
+
+  const credential = EmailAuthProvider.credential(user.email, password.value);
+
+  try {
+    await reauthenticateWithCredential(user, credential);
+    await deleteUser(user);
+    proxy.$showToastMessage('success', 'Account deleted successfully');
+    await router.push('/login');
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    deleteErrorMessage.value = "The password you submitted is wrong. Please try again.";
+  }
 };
 </script>
 
@@ -398,5 +511,15 @@ input:focus {
 .modal-buttons .btn {
   flex: 1;
   margin: 0;
+}
+
+.modal-content.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.modal-content.dark {
+  background-color: #1e1e1e;
+  color: #ffffff;
 }
 </style>

@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref, inject, computed} from 'vue';
+import {onMounted, ref, inject, computed, getCurrentInstance} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {
   addColor,
@@ -139,11 +139,12 @@ const isColourModalOpen = ref(false);
 const colorModalMode = ref('add');
 const currentColor = ref('#000000');
 const editColorIndex = ref(null);
+const { proxy } = getCurrentInstance();
 
 const loadCollections = async () => {
 
   try {
-    collection.value = await fetchCollectionById(route.params.id);
+    collection.value = await fetchCollectionById(route.params.id, proxy.$showToastMessage);
     collectionName.value = collection.value.name;
   } catch (error) {
     console.error('Error loading collection details:', error);
@@ -176,14 +177,14 @@ const handleSubmitColor = async (newColor) => {
   if (colorModalMode.value === 'edit' && editColorIndex.value !== null) {
     const oldColor = collection.value.colors[editColorIndex.value];
     try {
-      await updateColor(collection.value.id, oldColor, newColor);
+      await updateColor(collection.value.id, oldColor, newColor, proxy.$showToastMessage);
       collection.value.colors[editColorIndex.value] = newColor;
     } catch (error) {
       console.error('Error updating color:', error);
     }
   } else {
     try {
-      await addColor(collection.value.id, newColor);
+      await addColor(collection.value.id, newColor, proxy.$showToastMessage);
       collection.value.colors.push(newColor);
     } catch (error) {
       console.error('Error adding color:', error);
@@ -203,7 +204,7 @@ const handleEditName = () => {
 const handleSubmitRename = async (newName) => {
   if (newName && newName !== collection.value.name) {
     try {
-      await updateCollectionName(collection.value.id, newName);
+      await updateCollectionName(collection.value.id, newName, proxy.$showToastMessage);
       collection.value.name = newName;
     } catch (error) {
       console.error('Error updating collection name:', error);
@@ -214,7 +215,7 @@ const handleSubmitRename = async (newName) => {
 
 const handleDeleteCollection = async () => {
   try {
-    await deleteCollection(collection.value.id);
+    await deleteCollection(collection.value.id, proxy.$showToastMessage);
     await router.push('/collections');
   } catch (error) {
     console.error('Error deleting collection:', error);
@@ -224,28 +225,44 @@ const handleDeleteCollection = async () => {
 const handleDeleteColor = async (idx) => {
   try {
     const colorToDelete = collection.value.colors[idx];
-    await deleteColor(collection.value.id, colorToDelete);
+    await deleteColor(collection.value.id, colorToDelete, proxy.$showToastMessage);
     collection.value.colors.splice(idx, 1);
   } catch (error) {
     console.error('Error deleting color:', error);
   }
 };
 
-const handleAddRandomColor = async () => {
+const handleAddRandomColor = async (attempts = 0) => {
+  if (attempts >= 5) {
+    proxy.$showToastMessage('error', 'Max attempts reached for adding random color');
+    return;
+  }
   try {
     const randomColor = generateRandomColor();
-    collection.value.colors.push(randomColor);
-    await addColor(collection.value.id, randomColor);
+    if (collection.value.colors.includes(randomColor)) {
+      handleAddRandomColor(attempts + 1);
+    } else {
+      await addColor(collection.value.id, randomColor, proxy.$showToastMessage);
+      collection.value.colors.push(randomColor);
+    }
   } catch (error) {
     console.error('Error adding random color:', error);
   }
 };
 
-const addIntelligentColorHandler = async () => {
+const addIntelligentColorHandler = async (attempts = 0) => {
+  if (attempts >= 5) {
+    proxy.$showToastMessage('error', 'Max attempts reached for adding intelligent color');
+    return;
+  }
   try {
     const intelligentColor = await getIntelligentColor(collection.value.colors);
-    await addColor(collection.value.id, intelligentColor);
-    collection.value.colors.push(intelligentColor);
+    if (collection.value.colors.includes(intelligentColor)) {
+      addIntelligentColorHandler(attempts + 1);
+    } else {
+      await addColor(collection.value.id, intelligentColor, proxy.$showToastMessage);
+      collection.value.colors.push(intelligentColor);
+    }
   } catch (error) {
     console.error('Error adding intelligent color:', error);
   }
@@ -253,13 +270,13 @@ const addIntelligentColorHandler = async () => {
 
 const handleDownloadCollection = async () => {
   if (collection.value) {
-    await downloadCollectionAsImage(collection.value);
+    await downloadCollectionAsImage(collection.value, proxy.$showToastMessage);
   }
 };
 
 const handleDownloadCollectionJson = async () => {
   if (collection.value) {
-    await downloadCollectionAsJson(collection.value);
+    await downloadCollectionAsJson(collection.value, proxy.$showToastMessage);
   }
 };
 

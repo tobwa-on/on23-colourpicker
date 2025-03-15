@@ -13,6 +13,7 @@
               maxlength="8"
           />
         </div>
+        <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
         <div class="modal-buttons mt-3">
           <button type="button" class="btn btn-secondary mdi mdi-close" @click="handleClose"> Cancel</button>
           <button type="submit" class="btn btn-primary mdi mdi-check"> Save</button>
@@ -39,16 +40,24 @@ const props = defineProps({
 const emits = defineEmits(['close', 'submit']);
 
 const collectionName = ref('');
+const errorMessage = ref('');
 
 const handleClose = () => {
   collectionName.value = '';
+  errorMessage.value = '';
   emits('close');
 };
 
 const handleSubmit = () => {
   if (collectionName.value.trim() !== '') {
-    emits('submit', collectionName.value.trim());
-    collectionName.value = '';
+    if (collectionName.value.trim().length <= 8) {
+      emits('submit', collectionName.value.trim());
+      collectionName.value = '';
+    } else {
+      errorMessage.value = 'Collection name must be 8 characters or less.';
+    }
+  } else {
+    errorMessage.value = 'Collection name cannot be empty.';
   }
 };
 </script>
@@ -110,4 +119,7 @@ input:focus {
   outline: 2px solid #007bff;
 }
 
+.text-danger {
+  color: red;
+}
 </style>

@@ -9,7 +9,7 @@
 
         <div class="content d-flex flex-column align-items-center">
           <div class="inhalt">
-            <div v-if="lastPalette" class="last-palette mb-4" @click="goToPaletteDetails(lastPalette.id)">
+            <div v-if="collections.length > 0 && lastPalette" class="last-palette mb-4" @click="goToPaletteDetails(lastPalette.id)">
               <p class="mb-2">Last modified collection:</p>
               <h4 class="palette-title">{{ lastPalette.name }}</h4>
               <div class="palette-preview d-flex">
@@ -35,7 +35,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import {ref, computed, onMounted, inject} from 'vue';

@@ -77,14 +77,14 @@
     <CreateCollectionModal
         :isOpen="isModalOpen"
         :theme="theme"
-        @close="closeCollectionModal"
+        @close="closeModal"
         @submit="createNewCollection"
     />
   </div>
 </template>
 
 <script setup>
-import {inject, onBeforeUnmount, onMounted, ref} from 'vue';
+import {inject, onBeforeUnmount, onMounted, ref, getCurrentInstance} from 'vue';
 import {addColor, createCollection, fetchCollections} from '../services/CollectionService.js';
 import CreateCollectionModal from "./CreateCollectionModal.vue";
 import CollectionDetail from "./CollectionDetail.vue";
@@ -101,6 +101,8 @@ const theme = inject('theme');
 const isCollectionModalOpen = ref(false);
 const collections = ref([]);
 const textColor = ref()
+
+const { proxy } = getCurrentInstance(); // Get the proxy instance
 
 const startCamera = async () => {
   try {
@@ -196,14 +198,14 @@ const closeModal = () => {
 };
 
 const createNewCollection = async (collectionName) => {
-  await createCollection(collectionName, []);
+  await createCollection(collectionName, [], proxy.$showToastMessage);
   await loadCollections();
   closeModal();
 }
 
 const addColour = async (collectionId) => {
   try {
-    await addColor(collectionId, savedHexColor.value);
+    await addColor(collectionId, savedHexColor.value, proxy.$showToastMessage);
 
     const targetCollection = collections.value.find(
         (collection) => collection.id === collectionId
