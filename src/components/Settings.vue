@@ -72,6 +72,13 @@
             <h3 class="modal-title">Change Password</h3>
             <form @submit.prevent="handleSubmit">
               <div class="modal-body">
+                <input
+                  v-model="currentPassword"
+                  type="password"
+                  class="form-control"
+                  placeholder="Enter current password"
+                  required
+                />
                 <div class="mb-3">
                   <input
                     v-model="newPassword"
@@ -179,6 +186,7 @@ const theme = inject('theme');
 const toggleTheme = inject('toggleTheme');
 
 const showModal = ref(false);
+const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const isPasswordChanged = ref(false);
@@ -202,6 +210,11 @@ const handleSubmit = async () => {
     return;
   }
 
+  if (!isValidPassword(newPassword.value)) {
+    errorMessage.value = "The password must be at least 8 characters long and contain a number, a special character, and upper and lower case letters.";
+    return;
+  }
+
   const user = auth.currentUser;
 
   if (!user) {
@@ -209,17 +222,26 @@ const handleSubmit = async () => {
     return;
   }
 
+  const credential = EmailAuthProvider.credential(user.email, currentPassword.value);
+
   try {
+    await reauthenticateWithCredential(user, credential);
     await updatePassword(user, newPassword.value);
     isPasswordChanged.value = true; // Zeige Erfolgsmeldung
+    proxy.$showToastMessage('success', 'Password successfully changed');
     setTimeout(() => {
       isPasswordChanged.value = false; // Setze Erfolgsmeldung zurück
       showModal.value = false; // Schließe das Modal nach 2 Sekunden
-    }, 2000); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
+    }, 1500); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
   } catch (error) {
     console.error("Error updating password:", error);
-    errorMessage.value = error.message || "An error occurred while updating the password.";
+    errorMessage.value = "The current password you submitted is wrong. Please try again.";
   }
+};
+
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  return regex.test(password);
 };
 
 const { proxy } = getCurrentInstance();
