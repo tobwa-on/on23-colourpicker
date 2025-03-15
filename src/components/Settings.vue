@@ -118,7 +118,7 @@
         </div>
 
         <!-- Guide Modal -->
-        <div v-if="showGuideModal" class="modal-overlay">
+        <div v-if="showGuideModal" class="modal-overlay guideModal">
           <div class="modal-content" :class="theme">
             <h3 class="modal-title">Welcome to the Color Manager PWA!</h3>
             <div class="modal-body">
@@ -521,5 +521,15 @@ input:focus {
 .modal-content.dark {
   background-color: #1e1e1e;
   color: #ffffff;
+}
+
+.scrollableBox{
+  height: 45vh; /* Fixe Höhe festlegen */
+  overflow-y: auto;
+}
+
+.modal-body{
+  height: 300px; /* Fixe Höhe festlegen */
+  overflow-y: auto;
 }
 </style>
