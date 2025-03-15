@@ -44,6 +44,14 @@
           <i class="icon-large mdi mdi-lock-reset"></i>
         </div>
 
+        <div
+          :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode']"
+          @click="openDeleteAccountModal"
+        >
+          <span class="option-text">Delete Account</span>
+          <i class="mdi mdi-delete"></i>
+        </div>
+
         <!-- Logout-Sektion -->
         <div
           :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode', 'bg-danger']"
@@ -127,6 +135,35 @@
           </div>
         </div>
 
+        <!-- Delete Account Modal -->
+        <div v-if="showDeleteAccountModal" class="modal-overlay">
+          <div class="modal-content" :class="theme">
+            <h3 class="modal-title">Confirm Account Deletion</h3>
+            <form @submit.prevent="handleDeleteAccount">
+              <div class="modal-body">
+                <input
+                  v-model="password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              <div class="modal-footer modal-buttons mt-3">
+                <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeDeleteAccountModal">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-danger mdi mdi-delete">
+                  Delete
+                </button>
+              </div>
+            </form>
+            <div v-if="deleteErrorMessage" class="text-danger">
+              <p>{{ deleteErrorMessage }}</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -134,7 +171,7 @@
 
 <script setup>
 import { ref, inject, getCurrentInstance } from 'vue';
-import { getAuth, signOut, updatePassword } from 'firebase/auth';
+import { getAuth, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from 'firebase/auth';
 import { isLoggingOut } from '../services/CollectionService.js'; // Import the flag
 
 const auth = getAuth();
@@ -146,6 +183,10 @@ const newPassword = ref('');
 const confirmPassword = ref('');
 const isPasswordChanged = ref(false);
 const errorMessage = ref('');
+
+const showDeleteAccountModal = ref(false);
+const password = ref('');
+const deleteErrorMessage = ref('');
 
 // Füge showGuideModal hinzu
 const showGuideModal = ref(false);
@@ -209,6 +250,37 @@ const openGuide = () => {
 // Schließt das Guide Modal
 const closeGuideModal = () => {
   showGuideModal.value = false;
+};
+
+const openDeleteAccountModal = () => {
+  showDeleteAccountModal.value = true;
+};
+
+const closeDeleteAccountModal = () => {
+  showDeleteAccountModal.value = false;
+  password.value = '';
+  deleteErrorMessage.value = '';
+};
+
+const handleDeleteAccount = async () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    deleteErrorMessage.value = "You need to be logged in to delete your account.";
+    return;
+  }
+
+  const credential = EmailAuthProvider.credential(user.email, password.value);
+
+  try {
+    await reauthenticateWithCredential(user, credential);
+    await deleteUser(user);
+    proxy.$showToastMessage('success', 'Account deleted successfully');
+    await router.push('/login');
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    deleteErrorMessage.value = "The password you submitted is wrong. Please try again.";
+  }
 };
 </script>
 
@@ -409,5 +481,15 @@ input:focus {
 .modal-buttons .btn {
   flex: 1;
   margin: 0;
+}
+
+.modal-content.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.modal-content.dark {
+  background-color: #1e1e1e;
+  color: #ffffff;
 }
 </style>
