@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, getCurrentInstance } from 'vue';
 import { getAuth, signOut, updatePassword } from 'firebase/auth';
 
 const auth = getAuth();
@@ -180,18 +180,20 @@ const handleSubmit = async () => {
   }
 };
 
+const { proxy } = getCurrentInstance();
+
 const logout = async () => {
   try {
     await signOut(auth);
-    console.log('Logged out successfully');
+    proxy.$showToastMessage('success', 'Logged out successfully');
   } catch (error) {
+    proxy.$showToastMessage('error', 'Error during logout');
     console.error('Error during logout:', error);
   }
 };
 
 // Öffnet das Guide Modal
 const openGuide = () => {
-  console.log("success guide");
   showGuideModal.value = true;
 };
 

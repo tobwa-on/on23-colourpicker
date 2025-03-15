@@ -15,29 +15,39 @@ import {
 } from 'firebase/firestore';
 import { saveAs } from 'file-saver';
 
+let authStateInitialized = false;
+let currentUser = null;
+
+observeAuthState((user) => {
+    currentUser = user;
+    authStateInitialized = true;
+});
+
 export const fetchCollections = async (showToast) => {
-    return new Promise((resolve, reject) => {
-        observeAuthState(async (user) => {
-            if (user) {
-                try {
-                    const collectionRef = collection(db, 'users', user.uid, 'palettes');
-                    const q = query(collectionRef, orderBy('last_modified', 'desc'));
-                    const snapshot = await getDocs(q);
-                    const collections = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    resolve(collections);
-                } catch (error) {
-                    if (showToast) showToast('error', 'Collections could not be loaded!');
-                    reject(error);
-                }
-            } else {
-                if (showToast) showToast('error', 'User is not authenticated');
-                reject(new Error('User is not authenticated'));
-            }
+    if (!authStateInitialized) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => fetchCollections(showToast).then(resolve).catch(reject), 100);
         });
-    });
+    }
+
+    if (!currentUser) {
+        if (showToast) showToast('error', 'User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
+
+    try {
+        const collectionRef = collection(db, 'users', currentUser.uid, 'palettes');
+        const q = query(collectionRef, orderBy('last_modified', 'desc'));
+        const snapshot = await getDocs(q);
+        const collections = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        return collections;
+    } catch (error) {
+        if (showToast) showToast('error', 'Collections could not be loaded!');
+        throw error;
+    }
 };
 
 export const createCollection = async (collectionName, colors, showToast) => {
