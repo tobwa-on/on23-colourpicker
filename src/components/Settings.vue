@@ -2,13 +2,14 @@
   <div class="container mt-4">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6 position-relative">
+        <!-- Theme Toggle -->
         <div class="theme-toggle">
           <input
-              type="checkbox"
-              id="themeToggle"
-              class="d-none"
-              @change="toggleTheme"
-              :checked="theme === 'dark'"
+            type="checkbox"
+            id="themeToggle"
+            class="d-none"
+            @change="toggleTheme"
+            :checked="theme === 'dark'"
           />
           <label for="themeToggle" class="toggle-label">
             <span class="toggle-icon sun">
@@ -26,12 +27,21 @@
           <h2>Settings</h2>
         </div>
 
+        <!-- Option Containers -->
         <div
-            :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode']"
-            @click="openGuide"
+          :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode']"
+          @click="openGuide"
         >
           <span class="option-text">Guide</span>
           <i class="icon-large mdi mdi-information"></i>
+        </div>
+
+        <div
+          :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode']"
+          @click="changePassword"
+        >
+          <span class="option-text">Change Password</span>
+          <i class="icon-large mdi mdi-lock-reset"></i>
         </div>
 
         <!-- Logout-Sektion -->
@@ -47,19 +57,98 @@
         <div class="footer text-center text-muted mt-auto">
           &copy; 2025 ON23
         </div>
+
+        <!-- Change Password Modal -->
+        <div v-if="showModal" class="modal-overlay">
+          <div class="modal-content" :class="theme">
+            <h3 class="modal-title">Change Password</h3>
+            <form @submit.prevent="handleSubmit">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <input
+                    v-model="newPassword"
+                    type="password"
+                    class="form-control"
+                    placeholder="Enter new password"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    v-model="confirmPassword"
+                    type="password"
+                    class="form-control"
+                    placeholder="Confirm new password"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="modal-footer modal-buttons mt-3">
+                <button type="button" class="btn btn-secondary mdi mdi-close" @click="showModal = false">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary mdi mdi-check">
+                  Save
+                </button>
+              </div>
+            </form>
+
+            <div v-if="isPasswordChanged" class="text-success">
+              <p>Password successfully changed!</p>
+            </div>
+            <div v-if="errorMessage" class="text-danger">
+              <p>{{ errorMessage }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-
 <script setup>
-import {getAuth, signOut} from 'firebase/auth';
-import {inject} from 'vue';
+import { ref, inject } from 'vue';
+import { getAuth, signOut, updatePassword } from 'firebase/auth';
 
 const auth = getAuth();
 const theme = inject('theme');
 const toggleTheme = inject('toggleTheme');
+
+const showModal = ref(false);
+const newPassword = ref('');
+const confirmPassword = ref('');
+const isPasswordChanged = ref(false);
+const errorMessage = ref('');
+
+// changePassword-Funktion, die das Modal öffnet
+const changePassword = async () => {
+  showModal.value = true;
+};
+
+const handleSubmit = async () => {
+  if (newPassword.value !== confirmPassword.value) {
+    errorMessage.value = "Passwords do not match!";
+    return;
+  }
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    errorMessage.value = "You need to be logged in to change your password.";
+    return;
+  }
+
+  try {
+    await updatePassword(user, newPassword.value);
+    isPasswordChanged.value = true; // Zeige Erfolgsmeldung
+    setTimeout(() => {
+      showModal.value = false; // Schließe das Modal nach 1 Sekunde
+    }, 1000);
+  } catch (error) {
+    console.error("Error updating password:", error);
+    errorMessage.value = error.message || "An error occurred while updating the password.";
+  }
+};
 
 const logout = async () => {
   try {
@@ -69,8 +158,8 @@ const logout = async () => {
     console.error('Error during logout:', error);
   }
 };
-
 </script>
+
 <style scoped>
 .theme-toggle {
   top: 10px;
@@ -178,7 +267,95 @@ const logout = async () => {
 
 .btn {
   height: 50px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px; /* Ecken abrunden */
+  padding: 8px 16px;
+  transition: background-color 0.3s;
 }
 
-</style>
+.btn-primary {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+}
 
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border: 1px solid #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #5a6268;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.modal-footer .btn {
+  flex: 1;
+  margin: 0;
+}
+
+input {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+  outline: none;
+  width: 100%;
+  margin-top: 10px;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: 2px solid #007bff;
+}
+
+.modal-buttons {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+
+.modal-buttons .btn {
+  flex: 1;
+  margin: 0;
+}
+</style>
