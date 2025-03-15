@@ -47,24 +47,30 @@ const login = async () => {
       case "auth/user-not-found":
       case "auth/wrong-password":
         error.value = "Invalid e-mail or password. Please try again.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/too-many-requests":
         error.value = "Too many failed attempts. Please try again later.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/user-disabled":
         error.value = "Your account has been deactivated. Please contact support.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/invalid-email":
         error.value = "Please enter a valid e-mail address.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/missing-password":
         error.value = "Please enter your password.";
+        proxy.$showToastMessage('error', error.value);
         break;
       default:
         error.value = "An unknown error has occurred. Please try again later.";
+        proxy.$showToastMessage('error', error.value);
         break;
     }
-    proxy.$showToastMessage('error', error.value);
+   
   }
 };
 

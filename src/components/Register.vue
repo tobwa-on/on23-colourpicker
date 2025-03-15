@@ -18,12 +18,15 @@
         <button type="submit" class="btn btn-success w-100">Register</button>
         <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
       </form>
+      <p class="text-center mt-3">
+        Already have an account? <router-link to="/login">Login here</router-link>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, getCurrentInstance } from 'vue';
 import { registerUser } from '../../firebase';
 import { useRouter } from 'vue-router';
 
@@ -32,40 +35,50 @@ const password = ref('');
 const confirmPassword = ref('');
 const error = ref('');
 const router = useRouter();
+const { proxy } = getCurrentInstance();
 
 const register = async () => {
   error.value = "";
 
   if (password.value !== confirmPassword.value) {
-    error.value = "Die Passwörter stimmen nicht überein!";
+    error.value = "Passwords do not match.";
+    proxy.$showToastMessage('error', error.value);
     return;
   }
 
   if (!isValidPassword(password.value)) {
-    error.value = "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl, ein Sonderzeichen sowie Groß- und Kleinbuchstaben enthalten.";
+    error.value = "The password must be at least 8 characters long and contain a number, a special character and upper and lower case letters.";
+    proxy.$showToastMessage('error', error.value);
     return;
   }
 
   try {
     await registerUser(email.value, password.value);
+    proxy.$showToastMessage('success', 'Registration successful');
     await router.push('/home');
   } catch (err) {
     switch (err.code) {
       case "auth/email-already-in-use":
-        error.value = "Diese E-Mail-Adresse wird bereits verwendet.";
+        error.value = "This e-mail address is already in use.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/invalid-email":
-        error.value = "Bitte gib eine gültige E-Mail-Adresse ein.";
+        error.value = "Please enter a valid e-mail address.";
+        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/weak-password":
-        error.value = "Das Passwort ist zu schwach. Bitte verwende ein sicheres Passwort mit mindestens 8 Zeichen, einer Zahl, einem Sonderzeichen sowie Groß- und Kleinbuchstaben.";
+        error.value = "The password is too weak. Please use a secure password with at least 8 characters, a number, a special character and upper and lower case letters.";
+        proxy.$showToastMessage('error', error.value);
         break;
       default:
-        error.value = "Ein unbekannter Fehler ist aufgetreten. Bitte versuche es später erneut.";
+        error.value = "An unknown error has occurred. Please try again later.";
+        proxy.$showToastMessage('error', error.value);
         break;
     }
+   
   }
 };
+
 const isValidPassword = (password) => {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
   return regex.test(password);
