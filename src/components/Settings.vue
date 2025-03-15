@@ -99,7 +99,7 @@
                 </div>
               </div>
               <div class="modal-footer modal-buttons mt-3">
-                <button type="button" class="btn btn-secondary mdi mdi-close" @click="showModal = false">
+                <button type="button" class="btn btn-secondary mdi mdi-close" @click="closePasswordModal">
                   Cancel
                 </button>
                 <button type="submit" class="btn btn-primary mdi mdi-check">
@@ -204,6 +204,14 @@ const changePassword = async () => {
   showModal.value = true;
 };
 
+const closePasswordModal = () => {
+  showModal.value = false;
+  currentPassword.value = '';
+  newPassword.value = '';
+  confirmPassword.value = '';
+  errorMessage.value = '';
+};
+
 const handleSubmit = async () => {
   if (newPassword.value !== confirmPassword.value) {
     errorMessage.value = "Passwords do not match!";
@@ -231,7 +239,7 @@ const handleSubmit = async () => {
     proxy.$showToastMessage('success', 'Password successfully changed');
     setTimeout(() => {
       isPasswordChanged.value = false; // Setze Erfolgsmeldung zurück
-      showModal.value = false; // Schließe das Modal nach 2 Sekunden
+      closePasswordModal(); // Schließe das Modal und leere die Eingabefelder
     }, 1500); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
   } catch (error) {
     console.error("Error updating password:", error);
