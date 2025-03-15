@@ -30,7 +30,7 @@
               </a>
             </li>
             <li>
-              <a class="mdi mdi-star dropdown-item" @click="addIntelligentColorHandler">
+              <a class="mdi mdi-star dropdown-item" @click="addIntelligentColorHandler" :class="{ 'disabled': !hasColors }">
                 Intelligent Colour
               </a>
             </li>
@@ -55,7 +55,7 @@
               </a>
             </li>
             <li>
-              <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette">
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette" :class="{ 'disabled': !hasColors }">
                 Download
               </a>
             </li>
@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref, inject} from 'vue';
+import {onMounted, ref, inject, computed} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {
   addColor,
@@ -136,6 +136,8 @@ const isColourModalOpen = ref(false);
 const colorModalMode = ref('add');
 const currentColor = ref('#000000');
 const editColorIndex = ref(null);
+
+const hasColors = computed(() => palette.value && palette.value.colors.length > 0);
 
 // Laden der Palette
 const loadPalette = async () => {
@@ -395,6 +397,11 @@ onMounted(() => {
 .btn-container button {
   margin-left: 5px;
   color: #fff;
+}
+
+.dropdown-item.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 </style>
