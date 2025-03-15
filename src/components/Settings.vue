@@ -135,6 +135,7 @@
 <script setup>
 import { ref, inject, getCurrentInstance } from 'vue';
 import { getAuth, signOut, updatePassword } from 'firebase/auth';
+import { isLoggingOut } from '../services/CollectionService.js'; // Import the flag
 
 const auth = getAuth();
 const theme = inject('theme');
@@ -183,12 +184,20 @@ const handleSubmit = async () => {
 const { proxy } = getCurrentInstance();
 
 const logout = async () => {
+  if (!auth.currentUser) {
+    proxy.$showToastMessage('error', 'User is already logged out');
+    return;
+  }
+
   try {
+    isLoggingOut.value = true; // Set the flag to true
     await signOut(auth);
     proxy.$showToastMessage('success', 'Logged out successfully');
   } catch (error) {
     proxy.$showToastMessage('error', 'Error during logout');
     console.error('Error during logout:', error);
+  } finally {
+    isLoggingOut.value = false; // Reset the flag
   }
 };
 

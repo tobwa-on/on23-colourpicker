@@ -14,13 +14,17 @@ import {
     orderBy
 } from 'firebase/firestore';
 import { saveAs } from 'file-saver';
+import { ref } from 'vue'; // Import ref
 
 let authStateInitialized = false;
 let currentUser = null;
+export const isLoggingOut = ref(false); // Use ref for isLoggingOut
 
 observeAuthState((user) => {
-    currentUser = user;
-    authStateInitialized = true;
+    if (!isLoggingOut.value) {
+        currentUser = user;
+        authStateInitialized = true;
+    }
 });
 
 export const fetchCollections = async (showToast) => {
@@ -91,29 +95,25 @@ export const deleteCollection = async (collectionId, showToast) => {
 };
 
 export const fetchCollectionById = async (id, showToast) => {
-    return new Promise((resolve, reject) => {
-        observeAuthState(async (user) => {
-            if (user) {
-                try {
-                    const collectionRef = doc(db, 'users', user.uid, 'palettes', id);
-                    const docSnap = await getDoc(collectionRef);
+    if (!authStateInitialized || !currentUser) {
+        if (showToast) showToast('error', 'User is not authenticated');
+        throw new Error('User is not authenticated');
+    }
 
-                    if (docSnap.exists()) {
-                        resolve({id: docSnap.id, ...docSnap.data()});
-                    } else {
-                        if (showToast) showToast('error', 'Error fetching collection by ID');
-                        reject(new Error('Collection not found'));
-                    }
-                } catch (error) {
-                    if (showToast) showToast('error', 'Error fetching collection by ID');
-                    reject(error);
-                }
-            } else {
-                if (showToast) showToast('error', 'User is not authenticated');
-                reject(new Error('User is not authenticated'));
-            }
-        });
-    });
+    try {
+        const collectionRef = doc(db, 'users', currentUser.uid, 'palettes', id);
+        const docSnap = await getDoc(collectionRef);
+
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+        } else {
+            if (showToast) showToast('error', 'Error fetching collection by ID');
+            throw new Error('Collection not found');
+        }
+    } catch (error) {
+        if (showToast) showToast('error', 'Error fetching collection by ID');
+        throw error;
+    }
 };
 
 export const deleteColor = async (collectionId, colorToDelete, showToast) => {
