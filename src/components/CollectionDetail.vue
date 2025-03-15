@@ -231,21 +231,37 @@ const handleDeleteColor = async (idx) => {
   }
 };
 
-const handleAddRandomColor = async () => {
+const handleAddRandomColor = async (attempts = 0) => {
+  if (attempts >= 5) {
+    console.error('Max attempts reached for adding random color');
+    return;
+  }
   try {
     const randomColor = generateRandomColor();
-    collection.value.colors.push(randomColor);
-    await addColor(collection.value.id, randomColor);
+    if (collection.value.colors.includes(randomColor)) {
+      handleAddRandomColor(attempts + 1);
+    } else {
+      await addColor(collection.value.id, randomColor);
+      collection.value.colors.push(randomColor);
+    }
   } catch (error) {
     console.error('Error adding random color:', error);
   }
 };
 
-const addIntelligentColorHandler = async () => {
+const addIntelligentColorHandler = async (attempts = 0) => {
+  if (attempts >= 5) {
+    console.error('Max attempts reached for adding intelligent color');
+    return;
+  }
   try {
     const intelligentColor = await getIntelligentColor(collection.value.colors);
-    await addColor(collection.value.id, intelligentColor);
-    collection.value.colors.push(intelligentColor);
+    if (collection.value.colors.includes(intelligentColor)) {
+      addIntelligentColorHandler(attempts + 1);
+    } else {
+      await addColor(collection.value.id, intelligentColor);
+      collection.value.colors.push(intelligentColor);
+    }
   } catch (error) {
     console.error('Error adding intelligent color:', error);
   }
