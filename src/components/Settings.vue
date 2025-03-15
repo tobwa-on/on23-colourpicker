@@ -45,12 +45,12 @@
         </div>
 
         <!-- Logout-Sektion -->
-        <div class="content">
-          <div class="mb-4">
-            <button class="btn btn-danger w-100" @click="logout">
-              <i class="mdi mdi-logout"></i> Logout
-            </button>
-          </div>
+        <div
+          :class="['option-container p-3 mb-3 d-flex align-items-center justify-content-between', theme === 'dark' ? 'bg-dark-mode' : 'bg-light-mode', 'bg-danger']"
+          @click="logout"
+        >
+          <span class="option-text text-white">Logout</span>
+          <i class="mdi mdi-logout text-white"></i>
         </div>
 
         <!-- Footer -->
@@ -101,6 +101,32 @@
             </div>
           </div>
         </div>
+
+        <!-- Guide Modal -->
+        <div v-if="showGuideModal" class="modal-overlay">
+          <div class="modal-content" :class="theme">
+            <h3 class="modal-title">Welcome to the Color Manager PWA!</h3>
+            <div class="modal-body">
+              <p>
+                <strong>Colors:</strong> In the "Colors" section, you'll find your color collections. You can create new collections and add colors to them. Additionally, you can edit, delete, or download your collections for use in design programs.
+              </p>
+              
+              <p>
+                <strong>Home:</strong> The "Home" tab lets you scan colors using your camera. Once scanned, you can add the colors directly to your collections, making it easy to save and organize your color palette.
+              </p>
+              
+              <p>
+                <strong>Settings:</strong> In the "Settings" tab, you can access the guide to help you navigate the app, switch between Dark Mode and Light Mode for a personalized experience, log out of your account, or change your password for better security.
+              </p>   
+            </div>
+            <div class="modal-footer modal-buttons mt-3">
+              <button type="button" class="btn btn-secondary mdi mdi-close" @click="closeGuideModal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -119,6 +145,9 @@ const newPassword = ref('');
 const confirmPassword = ref('');
 const isPasswordChanged = ref(false);
 const errorMessage = ref('');
+
+// Füge showGuideModal hinzu
+const showGuideModal = ref(false);
 
 // changePassword-Funktion, die das Modal öffnet
 const changePassword = async () => {
@@ -142,8 +171,9 @@ const handleSubmit = async () => {
     await updatePassword(user, newPassword.value);
     isPasswordChanged.value = true; // Zeige Erfolgsmeldung
     setTimeout(() => {
-      showModal.value = false; // Schließe das Modal nach 1 Sekunde
-    }, 1000);
+      isPasswordChanged.value = false; // Setze Erfolgsmeldung zurück
+      showModal.value = false; // Schließe das Modal nach 2 Sekunden
+    }, 2000); // Warte 2 Sekunden, bevor das Modal und die Erfolgsmeldung verschwinden
   } catch (error) {
     console.error("Error updating password:", error);
     errorMessage.value = error.message || "An error occurred while updating the password.";
@@ -157,6 +187,17 @@ const logout = async () => {
   } catch (error) {
     console.error('Error during logout:', error);
   }
+};
+
+// Öffnet das Guide Modal
+const openGuide = () => {
+  console.log("success guide");
+  showGuideModal.value = true;
+};
+
+// Schließt das Guide Modal
+const closeGuideModal = () => {
+  showGuideModal.value = false;
 };
 </script>
 
