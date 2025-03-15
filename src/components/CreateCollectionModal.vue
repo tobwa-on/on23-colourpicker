@@ -47,8 +47,12 @@ const handleClose = () => {
 
 const handleSubmit = () => {
   if (collectionName.value.trim() !== '') {
-    emits('submit', collectionName.value.trim());
-    collectionName.value = '';
+    if (collectionName.value.trim() !== '' && collectionName.value.trim().length <= 8) {
+      emits('submit', collectionName.value.trim());
+      collectionName.value = '';
+    } else {
+      console.error('Collection name must be 8 characters or less.');
+    }
   }
 };
 </script>
@@ -109,5 +113,4 @@ input:focus {
   border-color: #007bff;
   outline: 2px solid #007bff;
 }
-
 </style>
