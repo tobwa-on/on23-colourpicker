@@ -270,13 +270,13 @@ const addIntelligentColorHandler = async (attempts = 0) => {
 
 const handleDownloadCollection = async () => {
   if (collection.value) {
-    await downloadCollectionAsImage(collection.value);
+    await downloadCollectionAsImage(collection.value, proxy.$showToastMessage);
   }
 };
 
 const handleDownloadCollectionJson = async () => {
   if (collection.value) {
-    await downloadCollectionAsJson(collection.value);
+    await downloadCollectionAsJson(collection.value, proxy.$showToastMessage);
   }
 };
 

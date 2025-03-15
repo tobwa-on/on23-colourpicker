@@ -247,7 +247,7 @@ export const updateCollectionName = async (collectionId, newName, showToast) => 
     }
 };
 
-export const downloadCollectionAsImage = async (collection) => {
+export const downloadCollectionAsImage = async (collection, showToast) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const boxSize = 100;
@@ -281,15 +281,18 @@ export const downloadCollectionAsImage = async (collection) => {
             const writable = await handle.createWritable();
             await writable.write(blob);
             await writable.close();
+            if (showToast) showToast('success', 'Image successfully downloaded!');
         } catch (error) {
             console.error('Error saving file:', error);
+            if (showToast) showToast('error', 'Error downloading image.');
         }
     } else {
         saveAs(blob, `${collection.name}.png`);
+        if (showToast) showToast('success', 'Image successfully downloaded!');
     }
 };
 
-export const downloadCollectionAsJson = async (collection) => {
+export const downloadCollectionAsJson = async (collection, showToast) => {
     const jsonData = {
         name: collection.name,
         colors: collection.colors
@@ -297,7 +300,13 @@ export const downloadCollectionAsJson = async (collection) => {
 
     const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
 
-    saveAs(blob, `${collection.name}.json`);
+    try {
+        saveAs(blob, `${collection.name}.json`);
+        if (showToast) showToast('success', 'JSON successfully downloaded!');
+    } catch (error) {
+        console.error('Error downloading JSON:', error);
+        if (showToast) showToast('error', 'Error downloading JSON.');
+    }
 };
 
 const hexToRgb = (hex) => {
