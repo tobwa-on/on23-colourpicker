@@ -49,7 +49,7 @@
           @click="openDeleteAccountModal"
         >
           <span class="option-text">Delete Account</span>
-          <i class="mdi mdi-delete"></i>
+          <i class="icon-large mdi mdi-delete"></i>
         </div>
 
         <!-- Logout-Sektion -->
@@ -58,7 +58,7 @@
           @click="logout"
         >
           <span class="option-text text-white">Logout</span>
-          <i class="mdi mdi-logout text-white"></i>
+          <i class="icon-large mdi mdi-logout text-white"></i>
         </div>
 
         <!-- Footer -->
