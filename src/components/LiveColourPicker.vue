@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import {inject, onBeforeUnmount, onMounted, ref} from 'vue';
+import {inject, onBeforeUnmount, onMounted, ref, getCurrentInstance} from 'vue';
 import {addColor, createCollection, fetchCollections} from '../services/CollectionService.js';
 import CreateCollectionModal from "./CreateCollectionModal.vue";
 import CollectionDetail from "./CollectionDetail.vue";
@@ -101,6 +101,8 @@ const theme = inject('theme');
 const isCollectionModalOpen = ref(false);
 const collections = ref([]);
 const textColor = ref()
+
+const { proxy } = getCurrentInstance(); // Get the proxy instance
 
 const startCamera = async () => {
   try {
@@ -214,8 +216,10 @@ const addColour = async (collectionId) => {
       targetCollection.colors.push(savedHexColor.value);
     }
     closeCollectionModal();
+    proxy.$showToastMessage('success', 'Color added to collection successfully!'); // Show success toast
   } catch (error) {
     console.error('Error adding color to collection:', error);
+    proxy.$showToastMessage('error', 'Failed to add color to collection.'); // Show error toast
   }
 };
 
