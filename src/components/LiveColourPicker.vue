@@ -198,7 +198,7 @@ const closeModal = () => {
 };
 
 const createNewCollection = async (collectionName) => {
-  await createCollection(collectionName, []);
+  await createCollection(collectionName, [], proxy.$showToastMessage);
   await loadCollections();
   closeModal();
 }
