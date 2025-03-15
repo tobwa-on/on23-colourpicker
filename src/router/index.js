@@ -2,10 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
 import HomeView from "../views/HomeView.vue";
-import PaletteView from "../views/PaletteView.vue";
+import CollectionView from "../views/CollectionView.vue";
 import SettingsView from "../views/SettingsView.vue";
-import {auth} from "../../firebase.js";
-import PaletteDetail from '../components/PaletteDetail.vue';
+import PaletteDetail from '../components/CollectionDetail.vue';
 import LiveColourPicker from "../components/LiveColourPicker.vue";
 
 const routes = [
@@ -28,15 +27,15 @@ const routes = [
     },
     {
         path: '/colourpicker',
-        name: 'Pick a Colour',
+        name: 'ColourPicker',
         component: LiveColourPicker,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }
     },
     {
-        path: '/palettes',
-        name: 'Palette',
-        component: PaletteView,
+        path: '/collections',
+        name: 'Collections',
+        component: CollectionView,
         // Auth-Guard: Nur zugänglich, wenn der Benutzer eingeloggt ist
         meta: { requiresAuth: true }
     },

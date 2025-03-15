@@ -31,37 +31,35 @@
       </div>
     </div>
 
-    <div v-if="isPaletteModalOpen" class="modal-overlay">
+    <div v-if="isCollectionModalOpen" class="modal-overlay">
       <div :class="['modal-content', theme]">
-        <h3>Add selected colour to a palette</h3>
+        <h3>Add selected colour to a collection</h3>
         <!-- Color preview and current hex code -->
         <div class="color-preview">
-          Selected colour:
+          <span >Selected colour:</span>
           <div class="color-box" :style="{ backgroundColor: savedColor }"></div>
           <div class="color-text">{{ savedHexColor }}</div>
         </div>
 
-        <div class="palette-list">
+        <div class="collection-list">
           <div
-              v-for="(palette, index) in palettes"
-              :key="palette.id || index"
-              class="palette-card"
-              @click="addColour(palette.id)"
+              v-for="(collection, index) in collections"
+              :key="collection.id || index"
+              class="collection-card"
+              @click="addColour(collection.id)"
           >
-            <div class="palette-header mt-2">
-              <h5>{{ palette.name }}</h5>
+            <div class="collection-header mt-2">
+              <h5>{{ collection.name }}</h5>
             </div>
-            <div class="palette-body">
-              <!-- Wenn die Palette Farben enthält -->
-              <template v-if="palette.colors && palette.colors.length > 0">
+            <div class="collection-body">
+              <template v-if="collection.colors && collection.colors.length > 0">
                 <div
-                    v-for="(color, idx) in palette.colors"
+                    v-for="(color, idx) in collection.colors"
                     :key="idx"
                     class="color-box"
                     :style="{ backgroundColor: color }"
                 ></div>
               </template>
-              <!-- Wenn die Palette leer ist -->
               <template v-else>
                 <div class="color-box empty-box"></div>
               </template>
@@ -70,39 +68,44 @@
 
         </div>
         <div class="modal-footer modal-buttons">
-          <button class="btn btn-secondary mdi mdi-close" @click="closePaletteModal">Cancel</button>
-          <!-- TODO -->
-          <button class="btn btn-primary mdi mdi-plus" @click="closePaletteModal">New Palette</button>
+          <button class="btn btn-secondary mdi mdi-close" @click="closeCollectionModal">Cancel</button>
+          <button class="btn btn-primary mdi mdi-plus" @click="openModal">New Collection</button>
         </div>
       </div>
     </div>
 
-
+    <CreateCollectionModal
+        :isOpen="isModalOpen"
+        :theme="theme"
+        @close="closeCollectionModal"
+        @submit="createNewCollection"
+    />
   </div>
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, inject} from 'vue';
-import {fetchPalettes, addColor} from '../services/Palettes.js';
+import {inject, onBeforeUnmount, onMounted, ref} from 'vue';
+import {addColor, createCollection, fetchCollections} from '../services/CollectionService.js';
+import CreateCollectionModal from "./CreateCollectionModal.vue";
+import CollectionDetail from "./CollectionDetail.vue";
 
 const video = ref(null);
 const canvas = ref(null);
+const isModalOpen = ref(false);
 
 const color = ref('rgb(0,0,0)');
 const hexColor = ref('#000000');
 const savedColor = ref('rgb(0,0,0)');
 const savedHexColor = ref('#000000');
 const theme = inject('theme');
-const isPaletteModalOpen = ref(false);
-const palettes = ref([]);
+const isCollectionModalOpen = ref(false);
+const collections = ref([]);
 const textColor = ref()
 
-// Kamera starten und Live-Stream abspielen
 const startCamera = async () => {
   try {
     const constraints = {video: {facingMode: "environment"}};
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    video.value.srcObject = stream;
+    video.value.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
   } catch (error) {
     console.error("Fehler beim Starten der Kamera:", error);
   }
@@ -148,7 +151,7 @@ const extractColor = () => {
 onMounted(() => {
   startCamera();
   setInterval(extractColor, 100);
-  loadPalettes();
+  loadCollections();
 });
 
 // Bei Verlassen der Seite Stream stoppen
@@ -158,37 +161,64 @@ onBeforeUnmount(() => {
   tracks?.forEach(track => track.stop());
 });
 
-// Load palettes
-const loadPalettes = async () => {
+const loadCollections = async () => {
   try {
-    palettes.value = await fetchPalettes();
+    const fetchedCollections = await fetchCollections();
+    collections.value = fetchedCollections.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
   } catch (error) {
-    console.error('Error loading palettes:', error);
+    console.error('Error loading collections:', error);
   }
 };
 
 const saveCurrentColor = () => {
   savedColor.value = color.value;
   savedHexColor.value = hexColor.value;
-  openPaletteModal();
+  openCollectionModal();
 };
 
-const openPaletteModal = () => {
-  isPaletteModalOpen.value = true;
+const openCollectionModal = () => {
+  isCollectionModalOpen.value = true;
 };
 
-const closePaletteModal = () => {
-  isPaletteModalOpen.value = false;
+const closeCollectionModal = () => {
+  isCollectionModalOpen.value = false;
 };
 
-const addColour = async (paletteId) => {
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const createNewCollection = async (collectionName) => {
+  await createCollection(collectionName, []);
+  await loadCollections();
+  closeModal();
+}
+
+const addColour = async (collectionId) => {
   try {
-    await addColor(paletteId, savedHexColor.value);
-    closePaletteModal();
+    await addColor(collectionId, savedHexColor.value);
+
+    const targetCollection = collections.value.find(
+        (collection) => collection.id === collectionId
+    );
+    if (targetCollection) {
+
+      targetCollection.colors = targetCollection.colors || [];
+      targetCollection.colors.push(savedHexColor.value);
+    }
+    closeCollectionModal();
   } catch (error) {
-    console.error('Error adding color to palette:', error);
+    console.error('Error adding color to collection:', error);
   }
 };
+
 </script>
 
 <style scoped>
@@ -213,10 +243,11 @@ const addColour = async (paletteId) => {
   position: relative;
   display: flex;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   max-width: 800px;
   margin: auto;
+  height: calc(100vh - 180px);
 }
 
 video {
@@ -241,7 +272,6 @@ canvas {
 .color-display-box {
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 10px;
   border-radius: 12px;
   border: 1px solid #ddd;
@@ -259,9 +289,12 @@ canvas {
 }
 
 .color-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
+  width: 50px;
+  height: 50px;
+}
+
+.collection-body {
+  border-radius: 8px;
 }
 
 .color-text {
@@ -287,13 +320,14 @@ canvas {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 20px);
+  width: calc(100% - 15px);
 }
 
 .add-colour-button {
   width: 100%;
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 8px;
+  height:72px
 }
 
 .modal-overlay {
@@ -348,17 +382,16 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   margin-bottom: 20px;
 }
 
 .color-preview .color-box {
   width: 40px;
   height: 40px;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 
-.palette-list {
+.collection-list {
   max-height: 300px; /* Set a max height for the list */
   overflow-y: auto; /* Enable vertical scrolling */
   margin-bottom: 20px;
@@ -380,26 +413,18 @@ canvas {
   color: #ffffff;
 }
 
-.palette-body {
+.collection-body {
   display: flex;
-  width: 100%;
-  gap: 5px;
+  overflow: hidden;
 }
 
-.palette-body .color-box {
+.collection-body .color-box {
   flex: 1;
   height: 40px;
 }
 
 
-.palette-body .color-box.empty-box {
-  flex: 1;
-  height: 40px;
-  border: 1px solid grey;
-  background-color: transparent;
-}
-
-.palette-list::-webkit-scrollbar {
+.collection-list::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }
 

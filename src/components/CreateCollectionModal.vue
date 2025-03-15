@@ -1,23 +1,21 @@
 <template>
-  <div v-if="isOpen" :class="['modal-overlay', theme]">
+  <div v-if="isOpen" class="modal-overlay" :class="theme">
     <div :class="['modal-content', theme]">
-      <h3 class="modal-title">Rename Collection</h3>
+      <h3 class="mb-3">Create a new Collection</h3>
       <form @submit.prevent="handleSubmit">
-        <div class="modal-body">
+        <div class="form-group">
           <input
-              v-model="newPaletteName"
+              v-model="collectionName"
               type="text"
-              class="form-control"
-              placeholder="Enter new collection name."
+              id="collectionName"
+              required
+              placeholder="Enter collection name"
+              maxlength="8"
           />
         </div>
-        <div class="modal-footer modal-buttons mt-3">
-          <button type="button" class="btn btn-secondary mdi mdi-close" @click="handleClose">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary mdi mdi-check">
-            Save
-          </button>
+        <div class="modal-buttons mt-3">
+          <button type="button" class="btn btn-secondary mdi mdi-close" @click="handleClose"> Cancel</button>
+          <button type="submit" class="btn btn-primary mdi mdi-check"> Save</button>
         </div>
       </form>
     </div>
@@ -25,44 +23,33 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    required: true,
+    required: true
   },
   theme: {
     type: String,
-    default: 'light',
-  },
-  // Der Name der Collection wird als String übergeben
-  collectionName: {
-    type: String,
-    default: '',
-  },
+    default: 'light'
+  }
 });
 
 const emits = defineEmits(['close', 'submit']);
 
-// Initialer Wert entspricht dem übergebenen collectionName
-const newPaletteName = ref(props.collectionName);
-
-// Aktualisiere den internen Wert, falls sich der Prop geändert hat
-watch(
-    () => props.collectionName,
-    (newVal) => {
-      newPaletteName.value = newVal;
-    }
-);
+const collectionName = ref('');
 
 const handleClose = () => {
+  collectionName.value = '';
   emits('close');
 };
 
 const handleSubmit = () => {
-  // Hier wird der Wert aus dem Input zurückgegeben
-  emits('submit', newPaletteName.value);
+  if (collectionName.value.trim() !== '') {
+    emits('submit', collectionName.value.trim());
+    collectionName.value = '';
+  }
 };
 </script>
 
@@ -122,4 +109,5 @@ input:focus {
   border-color: #007bff;
   outline: 2px solid #007bff;
 }
+
 </style>

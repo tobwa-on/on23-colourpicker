@@ -12,20 +12,20 @@ import {
 } from 'firebase/firestore';
 import { saveAs } from 'file-saver';
 
-export const fetchPalettes = () => {
+export const fetchCollections = () => {
     return new Promise((resolve, reject) => {
         observeAuthState(async (user) => {
             if (user) {
                 try {
-                    const palettesRef = collection(db, 'users', user.uid, 'palettes');
-                    const snapshot = await getDocs(palettesRef);
-                    const palettes = snapshot.docs.map(doc => ({
+                    const collectionRef = collection(db, 'users', user.uid, 'palettes');
+                    const snapshot = await getDocs(collectionRef);
+                    const collections = snapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data(),
                     }));
-                    resolve(palettes);
+                    resolve(collections);
                 } catch (error) {
-                    console.error('Error fetching palettes: ', error);
+                    console.error('Error fetching collections: ', error);
                     reject(error);
                 }
             } else {
@@ -36,20 +36,20 @@ export const fetchPalettes = () => {
     });
 };
 
-export const createPalette = async (paletteName, colors) => {
+export const createCollection = async (collectionName, colors) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            const palettesRef = collection(db, 'users', user.uid, 'palettes');
-            await addDoc(palettesRef, {
-                name: paletteName,
+            const collectionRef = collection(db, 'users', user.uid, 'palettes');
+            await addDoc(collectionRef, {
+                name: collectionName,
                 colors: colors,
             });
 
-            console.log('Palette successfully created!');
+            console.log('Collection successfully created!');
         } catch (error) {
-            console.error('Error creating palette: ', error);
+            console.error('Error creating Collection: ', error);
             throw error;
         }
     } else {
@@ -58,16 +58,16 @@ export const createPalette = async (paletteName, colors) => {
     }
 };
 
-export const deletePalette = async (paletteId) => {
+export const deleteCollection = async (collectionId) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
-            await deleteDoc(paletteRef);
-            console.log('Palette successfully deleted!');
+            const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
+            await deleteDoc(collectionRef);
+            console.log('Collection successfully deleted!');
         } catch (error) {
-            console.error('Error deleting palette: ', error);
+            console.error('Error deleting collection: ', error);
             throw error;
         }
     } else {
@@ -76,21 +76,21 @@ export const deletePalette = async (paletteId) => {
     }
 };
 
-export const fetchPaletteById = async (id) => {
+export const fetchCollectionById = async (id) => {
     return new Promise((resolve, reject) => {
         observeAuthState(async (user) => {
             if (user) {
                 try {
-                    const paletteRef = doc(db, 'users', user.uid, 'palettes', id);
-                    const docSnap = await getDoc(paletteRef);
+                    const collectionRef = doc(db, 'users', user.uid, 'palettes', id);
+                    const docSnap = await getDoc(collectionRef);
 
                     if (docSnap.exists()) {
                         resolve({id: docSnap.id, ...docSnap.data()});
                     } else {
-                        reject(new Error('Palette not found'));
+                        reject(new Error('Collection not found'));
                     }
                 } catch (error) {
-                    console.error('Error fetching palette by ID: ', error);
+                    console.error('Error fetching collection by ID: ', error);
                     reject(error);
                 }
             } else {
@@ -101,14 +101,14 @@ export const fetchPaletteById = async (id) => {
     });
 };
 
-export const deleteColor = async (paletteId, colorToDelete) => {
+export const deleteColor = async (collectionId, colorToDelete) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+            const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
 
-            await updateDoc(paletteRef, {
+            await updateDoc(collectionRef, {
                 colors: arrayRemove(colorToDelete),
             });
 
@@ -123,18 +123,18 @@ export const deleteColor = async (paletteId, colorToDelete) => {
     }
 };
 
-export const updateColor = async (paletteId, oldColor, newColor) => {
+export const updateColor = async (collectionId, oldColor, newColor) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+            const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
 
-            await updateDoc(paletteRef, {
+            await updateDoc(collectionRef, {
                 colors: arrayRemove(oldColor),
             });
 
-            await updateDoc(paletteRef, {
+            await updateDoc(collectionRef, {
                 colors: arrayUnion(newColor),
             });
 
@@ -151,10 +151,7 @@ export const updateColor = async (paletteId, oldColor, newColor) => {
 
 export const getIntelligentColor = async (colors) => {
     try {
-        // Pick a random color from the current palette
         const randomColor = colors[Math.floor(Math.random() * colors.length)].replace('#', '');
-
-        // Fetch a complementary color from the Color API
         const response = await fetch(`https://www.thecolorapi.com/scheme?hex=${randomColor}&mode=complement&count=1`);
         const data = await response.json();
         return data.colors[0].hex.value;
@@ -164,7 +161,7 @@ export const getIntelligentColor = async (colors) => {
     }
 };
 
-export const addColor = async (paletteId, newColor) => {
+export const addColor = async (collectionId, newColor) => {
     const user = auth.currentUser;
 
     if (user) {
@@ -174,10 +171,9 @@ export const addColor = async (paletteId, newColor) => {
         }
 
         try {
-            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
+            const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
 
-            // Add the provided color to the palette
-            await updateDoc(paletteRef, {
+            await updateDoc(collectionRef, {
                 colors: arrayUnion(newColor),
             });
 
@@ -201,21 +197,19 @@ export function generateRandomColor() {
     return color;
 }
 
-export const updatePaletteName = async (paletteId, newName) => {
+export const updateCollectionName = async (collectionId, newName) => {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            const paletteRef = doc(db, 'users', user.uid, 'palettes', paletteId);
-
-            // Palette mit dem neuen Namen aktualisieren
-            await updateDoc(paletteRef, {
+            const collectionRef = doc(db, 'users', user.uid, 'palettes', collectionId);
+            await updateDoc(collectionRef, {
                 name: newName,
             });
 
-            console.log('Palette name successfully updated!');
+            console.log('Collection name successfully updated!');
         } catch (error) {
-            console.error('Error updating palette name: ', error);
+            console.error('Error updating collection name: ', error);
             throw error;
         }
     } else {
@@ -224,18 +218,17 @@ export const updatePaletteName = async (paletteId, newName) => {
     }
 };
 
-export const downloadPaletteAsImage = async (palette) => {
+export const downloadCollectionAsImage = async (collection) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const boxSize = 100;
-    canvas.width = palette.colors.length * boxSize;
+    canvas.width = collection.colors.length * boxSize;
     canvas.height = boxSize;
 
-    palette.colors.forEach((color, index) => {
+    collection.colors.forEach((color, index) => {
         ctx.fillStyle = color;
         ctx.fillRect(index * boxSize, 0, boxSize, boxSize);
 
-        // Determine font color based on background color brightness
         const rgb = hexToRgb(color);
         const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
         ctx.fillStyle = brightness > 125 ? '#000000' : '#FFFFFF';
@@ -250,7 +243,7 @@ export const downloadPaletteAsImage = async (palette) => {
     if (window.showSaveFilePicker) {
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: `${palette.name}.png`,
+                suggestedName: `${collection.name}.png`,
                 types: [{
                     description: 'PNG Image',
                     accept: { 'image/png': ['.png'] },
@@ -263,8 +256,19 @@ export const downloadPaletteAsImage = async (palette) => {
             console.error('Error saving file:', error);
         }
     } else {
-        saveAs(blob, `${palette.name}.png`);
+        saveAs(blob, `${collection.name}.png`);
     }
+};
+
+export const downloadCollectionAsJson = async (collection) => {
+    const jsonData = {
+        name: collection.name,
+        colors: collection.colors
+    };
+
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+
+    saveAs(blob, `${collection.name}.json`);
 };
 
 const hexToRgb = (hex) => {

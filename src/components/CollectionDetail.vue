@@ -1,18 +1,15 @@
 <template>
   <div class="container mt-4">
     <div class="header-section">
-      <router-link to="/palettes">
-        <button class="btn btn-lg mdi mdi-arrow-left m-0 p-0"></button>
+      <h1 v-if="collection" class="title m-0">{{ collection.name }}</h1>
+      <router-link to="/collections">
+        <button class="btn btn-lg add-btn mdi mdi-arrow-left m-0 p-0"></button>
       </router-link>
 
-      <!-- Titel in der Mitte -->
-      <h1 v-if="palette" class="title m-0">{{ palette.name }}</h1>
-
       <div class="button-container">
-        <!-- Dropdown für Farbhinzufügen -->
         <div class="dropdown">
           <button
-              class="btn btn-lg mdi mdi-plus"
+              class="btn mdi mdi-plus-circle-outline add-btn"
               type="button"
               id="dropdownAddButton"
               data-bs-toggle="dropdown"
@@ -37,17 +34,15 @@
           </ul>
         </div>
 
-        <!-- Dropdown für weitere Einstellungen (Rename, Download, Delete) -->
-        <div v-if="palette" class="dropdown">
+        <div class="dropdown">
           <button
-              class="btn btn-lg"
+              class="btn add-btn mdi mdi-dots-vertical"
               type="button"
               id="dropdownMenuButton"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-          >
-            <i class="mdi mdi-dots-vertical"></i>
-          </button>
+          />
+
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <li>
               <a class="mdi mdi-pencil dropdown-item" @click="handleEditName">
@@ -55,12 +50,22 @@
               </a>
             </li>
             <li>
+<<<<<<< HEAD:src/components/PaletteDetail.vue
               <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette" :class="{ 'disabled': !hasColors }">
                 Download
+=======
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollection">
+                Download .png
+>>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
               </a>
             </li>
             <li>
-              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeletePalette">
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollectionJson">
+                Download .json
+              </a>
+            </li>
+            <li>
+              <a class="mdi mdi-trash-can dropdown-item text-danger" @click="handleDeleteCollection">
                 Delete
               </a>
             </li>
@@ -69,21 +74,23 @@
       </div>
     </div>
 
-    <div v-if="palette">
+    <div v-if="collection">
       <div class="d-block">
         <div
-            v-for="(color, idx) in palette.colors"
+            v-for="(color, idx) in collection.colors"
             :key="idx"
             class="color-box mb-3"
         >
           <div :style="{ backgroundColor: color, height: '100px', width: '100%' }">
             <div class="overlay">
               <div class="text-container">
-                <div class="color-hex">{{ color }}</div>
+                <div class="color-hex" :style="{ color: getTextColor(color) }">{{ color }}</div>
               </div>
               <div class="btn-container">
-                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil"></button>
-                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can"></button>
+                <button @click="openEditColorModal(idx)" class="btn mdi mdi-pencil"
+                        :style="{ color: getTextColor(color) }"></button>
+                <button @click="handleDeleteColor(idx)" class="btn mdi mdi-trash-can"
+                        :style="{ color: getTextColor(color) }"></button>
               </div>
             </div>
           </div>
@@ -94,7 +101,7 @@
     <RenameCollectionModal
         :isOpen="isRenameModalOpen"
         :theme="theme"
-        :collectionName="palette ? palette.name : ''"
+        :collectionName="collection ? collection.name : ''"
         @close="closeRenameModal"
         @submit="handleSubmitRename"
     />
@@ -115,20 +122,21 @@ import {useRoute, useRouter} from 'vue-router';
 import {
   addColor,
   deleteColor,
-  deletePalette,
-  fetchPaletteById,
+  deleteCollection,
+  fetchCollectionById,
   updateColor,
-  updatePaletteName,
+  updateCollectionName,
   getIntelligentColor,
   generateRandomColor,
-  downloadPaletteAsImage
-} from '../services/Palettes.js';
+  downloadCollectionAsImage,
+  downloadCollectionAsJson
+} from '../services/CollectionService.js';
 import EditColourModal from "./EditColourModal.vue";
-import RenameCollectionModal from "./RenameCollectionModal.vue";
+import RenameCollectionModal from "./CollectionRenameModal.vue";
 
 const theme = inject('theme');
-const palette = ref(null);
-const paletteName = ref('');
+const collection = ref(null);
+const collectionName = ref('');
 const router = useRouter();
 const route = useRoute();
 const isRenameModalOpen = ref(false);
@@ -137,15 +145,19 @@ const colorModalMode = ref('add');
 const currentColor = ref('#000000');
 const editColorIndex = ref(null);
 
+<<<<<<< HEAD:src/components/PaletteDetail.vue
 const hasColors = computed(() => palette.value && palette.value.colors.length > 0);
 
 // Laden der Palette
 const loadPalette = async () => {
+=======
+const loadCollections = async () => {
+>>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
   try {
-    palette.value = await fetchPaletteById(route.params.id);
-    paletteName.value = palette.value.name;
+    collection.value = await fetchCollectionById(route.params.id);
+    collectionName.value = collection.value.name;
   } catch (error) {
-    console.error('Error loading palette details:', error);
+    console.error('Error loading collection details:', error);
   }
 };
 
@@ -160,7 +172,7 @@ const openColourModal = () => {
 const openEditColorModal = (idx) => {
   colorModalMode.value = 'edit';
   editColorIndex.value = idx;
-  currentColor.value = palette.value.colors[idx];
+  currentColor.value = collection.value.colors[idx];
   isColourModalOpen.value = true;
 };
 
@@ -173,17 +185,17 @@ const closeColourModal = () => {
 
 const handleSubmitColor = async (newColor) => {
   if (colorModalMode.value === 'edit' && editColorIndex.value !== null) {
-    const oldColor = palette.value.colors[editColorIndex.value];
+    const oldColor = collection.value.colors[editColorIndex.value];
     try {
-      await updateColor(palette.value.id, oldColor, newColor);
-      palette.value.colors[editColorIndex.value] = newColor;
+      await updateColor(collection.value.id, oldColor, newColor);
+      collection.value.colors[editColorIndex.value] = newColor;
     } catch (error) {
       console.error('Error updating color:', error);
     }
   } else {
     try {
-      await addColor(palette.value.id, newColor);
-      palette.value.colors.push(newColor);
+      await addColor(collection.value.id, newColor);
+      collection.value.colors.push(newColor);
     } catch (error) {
       console.error('Error adding color:', error);
     }
@@ -200,31 +212,31 @@ const handleEditName = () => {
 };
 
 const handleSubmitRename = async (newName) => {
-  if (newName && newName !== palette.value.name) {
+  if (newName && newName !== collection.value.name) {
     try {
-      await updatePaletteName(palette.value.id, newName);
-      palette.value.name = newName;
+      await updateCollectionName(collection.value.id, newName);
+      collection.value.name = newName;
     } catch (error) {
-      console.error('Error updating palette name:', error);
+      console.error('Error updating collection name:', error);
     }
   }
   isRenameModalOpen.value = false;
 };
 
-const handleDeletePalette = async () => {
+const handleDeleteCollection = async () => {
   try {
-    await deletePalette(palette.value.id);
-    await router.push({name: 'Palette'});
+    await deleteCollection(collection.value.id);
+    await router.push('/collections');
   } catch (error) {
-    console.error('Error deleting palette:', error);
+    console.error('Error deleting collection:', error);
   }
 };
 
 const handleDeleteColor = async (idx) => {
   try {
-    const colorToDelete = palette.value.colors[idx];
-    await deleteColor(palette.value.id, colorToDelete);
-    palette.value.colors.splice(idx, 1);
+    const colorToDelete = collection.value.colors[idx];
+    await deleteColor(collection.value.id, colorToDelete);
+    collection.value.colors.splice(idx, 1);
   } catch (error) {
     console.error('Error deleting color:', error);
   }
@@ -233,8 +245,8 @@ const handleDeleteColor = async (idx) => {
 const handleAddRandomColor = async () => {
   try {
     const randomColor = generateRandomColor();
-    palette.value.colors.push(randomColor);
-    await addColor(palette.value.id, randomColor);
+    collection.value.colors.push(randomColor);
+    await addColor(collection.value.id, randomColor);
   } catch (error) {
     console.error('Error adding random color:', error);
   }
@@ -242,25 +254,40 @@ const handleAddRandomColor = async () => {
 
 const addIntelligentColorHandler = async () => {
   try {
-    const intelligentColor = await getIntelligentColor(palette.value.colors);
-    await addColor(palette.value.id, intelligentColor);
-    palette.value.colors.push(intelligentColor);
+    const intelligentColor = await getIntelligentColor(collection.value.colors);
+    await addColor(collection.value.id, intelligentColor);
+    collection.value.colors.push(intelligentColor);
   } catch (error) {
     console.error('Error adding intelligent color:', error);
   }
 };
 
-const handleDownloadPalette = async () => {
-  if (palette.value) {
-    await downloadPaletteAsImage(palette.value);
+const handleDownloadCollection = async () => {
+  if (collection.value) {
+    await downloadCollectionAsImage(collection.value);
   }
 };
 
+const handleDownloadCollectionJson = async () => {
+  if (collection.value) {
+    await downloadCollectionAsJson(collection.value);
+  }
+};
+
+// Farbauswahl für Hex-Code und Stift/Müll-Icon Anzeige basierend auf Kontrast zum Hintergrund
+const getTextColor = (hexColor) => {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128 ? "black" : "white";
+};
+
 onMounted(() => {
-  loadPalette();
+  loadCollections();
 });
 </script>
-
 
 <style scoped>
 .header-section {
@@ -269,24 +296,22 @@ onMounted(() => {
   align-items: center;
   position: relative;
   margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .header-section .title {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0;
-  padding: 0;
+  top: 0;
 }
 
 .button-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  position: absolute;
+  right: 0;
 }
 
-/* ANZEIGE PALETTE */
 .color-box {
   position: relative;
   border-radius: 8px;
@@ -303,95 +328,6 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  color: #fff;
-}
-
-/* MODAL OVERLAY & COLOR PICKER MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content.color-picker-modal {
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.modal-content.color-picker-modal.light {
-  background: #ffffff;
-  color: #000000;
-}
-
-.modal-content.color-picker-modal.dark {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.modal-content.color-picker-modal .color-input input[type="color"] {
-  width: 100%;
-  height: 80px;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Die Buttons im Modal sollen die ganze Breite einnehmen, mit Abstand */
-.modal-content.color-picker-modal .modal-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.modal-content.color-picker-modal .modal-buttons button {
-  flex: 1;
-}
-
-
-.modal-content {
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-}
-
-.modal-content.light {
-  background: #ffffff;
-  color: #000000;
-}
-
-.modal-content.dark {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-body {
-  margin-bottom: 20px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.modal-footer .btn {
-  padding: 10px 20px;
 }
 
 .btn-container button {
@@ -399,9 +335,45 @@ onMounted(() => {
   color: #fff;
 }
 
+<<<<<<< HEAD:src/components/PaletteDetail.vue
 .dropdown-item.disabled {
   pointer-events: none;
   opacity: 0.5;
 }
 
+=======
+.add-btn {
+  border-radius: 50%;
+  font-size: 1.7rem;
+  cursor:pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn {
+  padding: 10px 15px;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: static;
+
+    border: none;
+    box-shadow: none;
+  }
+
+  .dropdown-item {
+    text-align: center;
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+}
+
+.dropdown-menu {
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+>>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
 </style>
