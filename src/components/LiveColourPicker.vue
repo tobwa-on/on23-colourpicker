@@ -77,7 +77,7 @@
     <CreateCollectionModal
         :isOpen="isModalOpen"
         :theme="theme"
-        @close="closeCollectionModal"
+        @close="closeModal"
         @submit="createNewCollection"
     />
   </div>
