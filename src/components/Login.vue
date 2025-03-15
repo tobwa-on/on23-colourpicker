@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, getCurrentInstance } from 'vue';
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'vue-router';
@@ -31,12 +31,14 @@ const email = ref('');
 const password = ref('');
 const error = ref('');
 const router = useRouter();
+const { proxy } = getCurrentInstance();
 
 const login = async () => {
   error.value = "";
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     if (userCredential.user) {
+      proxy.$showToastMessage('success', 'Login successful');
       await router.push('/home');
     }
   } catch (err) {
@@ -44,24 +46,25 @@ const login = async () => {
       case "auth/invalid-credential":
       case "auth/user-not-found":
       case "auth/wrong-password":
-        error.value = "Ungültige E-Mail oder Passwort. Bitte versuche es erneut.";
+        error.value = "Invalid e-mail or password. Please try again.";
         break;
       case "auth/too-many-requests":
-        error.value = "Zu viele fehlgeschlagene Versuche. Bitte versuche es später erneut.";
+        error.value = "Too many failed attempts. Please try again later.";
         break;
       case "auth/user-disabled":
-        error.value = "Dein Konto wurde deaktiviert. Bitte kontaktiere den Support.";
+        error.value = "Your account has been deactivated. Please contact support.";
         break;
       case "auth/invalid-email":
-        error.value = "Bitte gib eine gültige E-Mail-Adresse ein.";
+        error.value = "Please enter a valid e-mail address.";
         break;
       case "auth/missing-password":
-        error.value = "Bitte gib dein Passwort ein.";
+        error.value = "Please enter your password.";
         break;
       default:
-        error.value = "Ein unbekannter Fehler ist aufgetreten. Bitte versuche es später erneut.";
+        error.value = "An unknown error has occurred. Please try again later.";
         break;
     }
+    proxy.$showToastMessage('error', error.value);
   }
 };
 
