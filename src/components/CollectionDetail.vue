@@ -50,17 +50,12 @@
               </a>
             </li>
             <li>
-<<<<<<< HEAD:src/components/PaletteDetail.vue
-              <a class="mdi mdi-download dropdown-item" @click="handleDownloadPalette" :class="{ 'disabled': !hasColors }">
-                Download
-=======
-              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollection">
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollection" :class="{ 'disabled': !hasColors }">
                 Download .png
->>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
               </a>
             </li>
             <li>
-              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollectionJson">
+              <a class="mdi mdi-download dropdown-item" @click="handleDownloadCollectionJson" :class="{ 'disabled': !hasColors }">
                 Download .json
               </a>
             </li>
@@ -145,14 +140,8 @@ const colorModalMode = ref('add');
 const currentColor = ref('#000000');
 const editColorIndex = ref(null);
 
-<<<<<<< HEAD:src/components/PaletteDetail.vue
-const hasColors = computed(() => palette.value && palette.value.colors.length > 0);
-
-// Laden der Palette
-const loadPalette = async () => {
-=======
 const loadCollections = async () => {
->>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
+
   try {
     collection.value = await fetchCollectionById(route.params.id);
     collectionName.value = collection.value.name;
@@ -284,6 +273,8 @@ const getTextColor = (hexColor) => {
   return brightness > 128 ? "black" : "white";
 };
 
+const hasColors = computed(() => collection.value && collection.value.colors.length > 0);
+
 onMounted(() => {
   loadCollections();
 });
@@ -335,13 +326,6 @@ onMounted(() => {
   color: #fff;
 }
 
-<<<<<<< HEAD:src/components/PaletteDetail.vue
-.dropdown-item.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-=======
 .add-btn {
   border-radius: 50%;
   font-size: 1.7rem;
@@ -375,5 +359,4 @@ onMounted(() => {
   right: 0;
   margin: 0 auto;
 }
->>>>>>> d458f51aa816d6f6eee2fe244c865ac5c9552d2b:src/components/CollectionDetail.vue
 </style>
