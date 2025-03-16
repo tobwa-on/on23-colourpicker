@@ -26,9 +26,10 @@ export const registerUser = async (email, password) => {
         const user = userCredential.user;
         return user;
     } catch (error) {
-        console.error('Error registering user:', error.message);
+        throw error;
     }
 };
+
 
 // Auth State Change Listener (für z.B. session management)
 export const observeAuthState = (callback) => {

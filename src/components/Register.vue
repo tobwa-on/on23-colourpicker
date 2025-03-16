@@ -48,37 +48,36 @@ const register = async () => {
   }
 
   if (!isValidPassword(password.value)) {
-    error.value = "The password must be at least 8 characters long and contain a number, a special character and upper and lower case letters.";
+    error.value = "The password must be at least 8 characters long and contain a number, a special character, and upper and lower case letters.";
     proxy.$showToastMessage('error', error.value);
     return;
   }
 
   try {
+    // Versuche den Benutzer zu registrieren
     await registerUser(email.value, password.value);
     proxy.$showToastMessage('success', 'Registration successful');
     await router.push('/home');
   } catch (err) {
+    // Fehler prüfen und entsprechende Nachrichten anzeigen
     switch (err.code) {
       case "auth/email-already-in-use":
         error.value = "This e-mail address is already in use.";
-        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/invalid-email":
         error.value = "Please enter a valid e-mail address.";
-        proxy.$showToastMessage('error', error.value);
         break;
       case "auth/weak-password":
-        error.value = "The password is too weak. Please use a secure password with at least 8 characters, a number, a special character and upper and lower case letters.";
-        proxy.$showToastMessage('error', error.value);
+        error.value = "The password is too weak. Please use a secure password with at least 8 characters, a number, a special character, and upper and lower case letters.";
         break;
       default:
         error.value = "An unknown error has occurred. Please try again later.";
-        proxy.$showToastMessage('error', error.value);
         break;
     }
-   
+    proxy.$showToastMessage('error', error.value);
   }
 };
+
 
 const isValidPassword = (password) => {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
