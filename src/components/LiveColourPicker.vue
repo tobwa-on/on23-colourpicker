@@ -293,6 +293,7 @@ canvas {
 .color-box {
   width: 50px;
   height: 50px;
+
 }
 
 .collection-body {
@@ -428,6 +429,12 @@ canvas {
 
 .collection-list::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
+}
+
+.empty-box {
+  border: 1px solid grey;
+  border-radius: 8px;
+  background-color: transparent;
 }
 
 </style>
