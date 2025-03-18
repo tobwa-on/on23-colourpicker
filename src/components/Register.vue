@@ -56,7 +56,6 @@ const register = async () => {
   try {
     // Versuche den Benutzer zu registrieren
     await registerUser(email.value, password.value);
-    proxy.$showToastMessage('success', 'Registration successful');
     await router.push('/home');
   } catch (err) {
     // Fehler prüfen und entsprechende Nachrichten anzeigen

@@ -39,7 +39,6 @@ const login = async () => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     if (userCredential.user) {
-      proxy.$showToastMessage('success', 'Login successful');
       await router.push('/home');
     }
   } catch (err) {

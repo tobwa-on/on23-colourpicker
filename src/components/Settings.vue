@@ -263,7 +263,6 @@ const logout = async () => {
   try {
     isLoggingOut.value = true; // Set the flag to true
     await signOut(auth);
-    proxy.$showToastMessage('success', 'Logged out successfully');
   } catch (error) {
     proxy.$showToastMessage('error', 'Error during logout');
     console.error('Error during logout:', error);
