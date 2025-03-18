@@ -121,7 +121,7 @@
         <div v-if="showGuideModal" class="modal-overlay guideModal">
           <div class="modal-content" :class="theme">
             <h3 class="modal-title">Welcome to the Color Manager PWA!</h3>
-            <div class="modal-body">
+            <div class="guide-modal-body">
               <p>
                 <strong>Colors:</strong> In the "Colors" section, you'll find your color collections. You can create new collections and add colors to them. Additionally, you can edit, delete, or download your collections for use in design programs.
               </p>
@@ -527,7 +527,7 @@ input:focus {
   overflow-y: auto;
 }
 
-.modal-body{
+.guide-modal-body{
   height: 300px; /* Fixe Höhe festlegen */
   overflow-y: auto;
 }
