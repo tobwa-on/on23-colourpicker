@@ -9,4 +9,11 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 # Deployment
 npm run build
+
 firebase deploy --only hosting
+
+
+# Setup
+npm install -g firebase-tools
+
+firebase login
