@@ -202,8 +202,7 @@ export const addColor = async (collectionId, newColor, showToast) => {
                     colors: arrayUnion(newColor),
                     last_modified: serverTimestamp()
                 });
-    
-                if (showToast) showToast('success', 'Color successfully added!');
+
             }
 
         } catch (error) {
